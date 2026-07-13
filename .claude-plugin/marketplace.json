@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "gordon-skills",
+  "description": "Curated Claude Code skill sets, installable per feature area.",
+  "owner": {
+    "name": "Gordon Beeming",
+    "url": "https://github.com/GordonBeeming"
+  },
+  "plugins": [
+    {
+      "name": "git-workflow",
+      "description": "PR lifecycle automation: autopilot PRs, branch and PR review, backlog triage, Dependabot batches, GitHub issue planning and security alerts, file uploads.",
+      "source": "./claude/git-workflow",
+      "category": "development"
+    }
+  ]
+}
