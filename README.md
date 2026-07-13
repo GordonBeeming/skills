@@ -24,17 +24,19 @@ Sets install at user scope, so once installed they're available in every project
 
 ### Codex
 
-Codex doesn't have a marketplace concept — a skill is a directory under `~/.codex/skills/` (or
-`.agents/skills/` inside one project, for a repo-scoped install). Installing a set means symlinking every
-skill in that set's `skills/` folder:
+Codex has its own marketplace system and reads this repo's `.claude-plugin/marketplace.json` directly — no
+separate manifest needed. Add the marketplace once, then install whichever sets you want:
 
 ```bash
-git clone git@github.com:GordonBeeming/skills.git
-cd skills
-for s in <folder>/<set>/skills/*; do
-  ln -s "$PWD/$s" ~/.codex/skills/"$(basename "$s")"
-done
+codex plugin marketplace add GordonBeeming/skills
+# or, over a full Git URL:
+codex plugin marketplace add https://github.com/GordonBeeming/skills
+
+codex plugin add <set>@gordon-skills
 ```
+
+`codex plugin add` copies the set into Codex's own plugin cache — after this repo publishes an update, run
+`codex plugin marketplace upgrade` and re-run `codex plugin add <set>@gordon-skills` to pick it up.
 
 ## Attribution
 
