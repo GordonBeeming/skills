@@ -4,25 +4,14 @@ PR lifecycle automation: autopilot PRs, branch and PR review, diff-only change m
 
 ## Install
 
-### Claude Code
-
-```bash
-claude plugin install git-workflow@gordon-skills
-```
-
 ### Codex
 
 ```bash
-git clone git@github.com:GordonBeeming/skills.git
-cd skills
-for s in claude/git-workflow/skills/*; do
-  ln -s "$PWD/$s" ~/.codex/skills/"$(basename "$s")"
-done
+codex plugin add git-workflow@gordon-codex-skills
 ```
 
 ## Skills
 
-- **pull-request** — Own the whole PR cycle: commit, create a draft PR with Copilot review, iterate with review bots via a delegated Sonnet teammate while still draft, publish after 3 clean ticks, resolve comments throughout, and merge (lead-verified) with linked-issue closing comments. Use when User says '/pull-request', 'PR autopilot', 'pull request autopilot', 'create autopilot for this work', or gives a PR URL wanting comments resolved ('resolve PR comments', 'fix PR feedback', 'address review comments'). Not for bare 'create a PR' / 'ship it' (normal draft-PR flow via the gitbutler skill), reviewing other people's PRs (review-pr / pr-review-backlog), or Dependabot batches (dependabot-review).
 - **review-pr** — Evidence-backed pull request review. Use when the user gives a PR URL, branch, or diff range and
 - **pr-review-backlog** — Use when clearing or triaging a BACKLOG of many open PRs in one session — "review all the open
 - **dependabot-review** — Review and batch-merge open Dependabot pull requests. Only invoke explicitly with /dependabot-review. Lists all open Dependabot PRs, analyzes each for security and compatibility concerns, presents a plan with approval comments, then approves and merges safe PRs on user confirmation.

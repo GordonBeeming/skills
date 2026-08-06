@@ -7,9 +7,9 @@ global rules — follow those, don't re-derive them here:
 - **Location** (`~/Developer/artifacts/<project>/`), **VS Code Insiders clickable links** +
   `DISPLAY_STRIP_PREFIX` shortening, and the mandatory **Playwright visual QA loop** (1920×1080 render,
   screenshot, fix overflow/clipping/contrast/broken-links/console errors, re-shoot, then delete the
-  screenshot) + default wrap styles → `~/.claude/rules/agents-and-tools.md`.
+  screenshot) + default wrap styles → the active Codex instructions (`AGENTS.md` and installed rules).
 - **Branding** — resolved by the `brand-guidelines` skill (see its `references/routing.md`) —
-  and the mandatory **humanizer** pass on all prose → `~/.claude/rules/content-writing.md`.
+  and the mandatory **humanizer** pass on all prose → the active Codex content-writing instructions.
 - **Light mode** default → `feedback_visual_output_theme` memory.
 
 ## Filename

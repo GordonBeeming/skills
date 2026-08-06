@@ -1,0 +1,9 @@
+{
+  "name": "community",
+  "description": "Skills for submitting to and interacting with community platforms and directories. Currently: submitting a tool to Shane Hanselman's Tiny Tool Town.",
+  "version": "0.1.1",
+  "author": {
+    "name": "Gordon Beeming",
+    "url": "https://github.com/GordonBeeming"
+  }
+}

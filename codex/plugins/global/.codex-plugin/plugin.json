@@ -1,0 +1,26 @@
+{
+  "name": "global",
+  "version": "0.2.7",
+  "description": "General-purpose skills not tied to one project: secret management, codebase memory, plan review, and other cross-cutting helpers.",
+  "author": {
+    "name": "Gordon Beeming",
+    "url": "https://github.com/GordonBeeming"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Global",
+    "shortDescription": "Use Gordon's general Codex workflows.",
+    "longDescription": "Codex-native cross-project workflows for secrets, Git, planning, codebase knowledge, demos, design, and review.",
+    "developerName": "Gordon Beeming",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Choose the right Git workflow for this repo.",
+      "Plan and delegate this implementation.",
+      "Build a polished demo of this feature."
+    ]
+  }
+}

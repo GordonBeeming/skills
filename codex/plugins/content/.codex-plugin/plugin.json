@@ -1,0 +1,23 @@
+{
+  "name": "content",
+  "version": "0.1.6",
+  "description": "Writing and media production: voice work, long-form and social content, branded infographics and decks, and demo-video recording and QA.",
+  "author": {
+    "name": "Gordon Beeming",
+    "url": "https://github.com/GordonBeeming"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Content",
+    "shortDescription": "Create branded writing, pages, and videos.",
+    "longDescription": "Codex-native writing, presentation, voice, demo-video, brand, and media-QA workflows.",
+    "developerName": "Gordon Beeming",
+    "category": "Writing",
+    "capabilities": ["Interactive", "Write"],
+    "defaultPrompt": [
+      "Write this in Gordon's voice.",
+      "Turn this page into a branded presentation.",
+      "QA this demo video against its storyboard."
+    ]
+  }
+}

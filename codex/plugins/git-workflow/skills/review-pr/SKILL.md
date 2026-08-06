@@ -33,7 +33,7 @@ Infer or collect:
 - any domain context the user supplies
 - whether to post comments — default is **no posting**
 
-Ask a narrow question (via `AskUserQuestion`) only if the PR target or review goal can't be inferred.
+Ask a narrow question (via `request_user_input` in Plan mode when available, or directly otherwise) only if the PR target or review goal can't be inferred.
 
 ## Evidence rules
 

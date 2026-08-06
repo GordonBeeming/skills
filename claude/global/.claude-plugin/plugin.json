@@ -1,0 +1,9 @@
+{
+  "name": "global",
+  "description": "General-purpose skills not tied to one project: secret management, codebase memory, plan review, and other cross-cutting helpers.",
+  "version": "0.2.15",
+  "author": {
+    "name": "Gordon Beeming",
+    "url": "https://github.com/GordonBeeming"
+  }
+}

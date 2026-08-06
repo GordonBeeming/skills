@@ -12,6 +12,18 @@
       "description": "PR lifecycle automation: autopilot PRs, branch and PR review, backlog triage, Dependabot batches, GitHub issue planning and security alerts, file uploads.",
       "source": "./claude/git-workflow",
       "category": "development"
+    },
+    {
+      "name": "global",
+      "description": "General-purpose skills not tied to one project: secret management, codebase memory, plan review, and other cross-cutting helpers.",
+      "source": "./claude/global",
+      "category": "productivity"
+    },
+    {
+      "name": "community",
+      "description": "Submitting to and interacting with community platforms and directories, starting with Tiny Tool Town tool submissions.",
+      "source": "./generic/community",
+      "category": "productivity"
     }
   ]
 }
