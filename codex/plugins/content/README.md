@@ -12,4 +12,4 @@ codex plugin add content@gordon-codex-skills
 
 ## Skills
 
-- **video-qa** — QA a demo or walkthrough MP4 against its intended storyboard and return a timestamped issue list.
+- **video-qa** — QA technical product-demo and software-walkthrough MP4s against an intended storyboard and return a

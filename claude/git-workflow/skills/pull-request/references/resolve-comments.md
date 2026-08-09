@@ -2,6 +2,8 @@
 
 Act as a developer addressing code review feedback. Given a pull request, fetch all open (unresolved) review comments and check-run annotations, fix each issue in the code, commit and push the changes, then reply to and resolve each thread on GitHub. Flag ambiguous or questionable comments through the decision gates below.
 
+> **Reply-before-resolve invariant — non-negotiable.** Every review thread gets a reply from us *before* it is resolved. Never resolve a thread you have not replied to, and never leave a thread unresolved with no reply. Each thread ends in exactly one of: (a) **replied and resolved**, or (b) **escalated to User** via a gate. "0 unresolved threads" is necessary but **not sufficient** — a thread someone else resolved, or a new-round thread you skipped, still owes a reply. Bots re-review after every push, so **new threads appear every round**: re-fetch *all* threads each tick and reply+resolve every one that carries no reply from us, whichever round it arrived in. A PR is never merge-ready while any thread lacks our reply. This is the single most common miss — treat "did I reply to literally every comment, this round included?" as an explicit checklist item, not an assumption.
+
 This reference is part of the `pull-request` skill. It runs in one of two modes:
 
 - **Direct mode** — the main session runs it itself (User asked for a one-off resolve round). Decision gates go straight to User via `EnterPlanMode` / `AskUserQuestion`, exactly as written in each step.
@@ -114,7 +116,7 @@ Pull latest to ensure you're up to date.
 
 Before triage, tag each unresolved thread's top commenter as **bot** or **human**. This tag picks the skip flow: bot → Step 3.7 auto-skip (no gate), human → Step 3.6 Skip-plan (always gated). Issue creation (Step 3.5) is gated regardless of author.
 
-- **Bot** — `author.login` matches `copilot`, `copilot-pull-request-reviewer`, `github-copilot[bot]`, `github-actions[bot]`, `coderabbitai[bot]`, `gemini-code-assist`, `sonarcloud[bot]`, `chatgpt-codex-connector`, or any login ending in `[bot]`.
+- **Bot** — `author.login` matches `copilot`, `copilot-pull-request-reviewer`, `github-copilot[bot]`, `github-actions[bot]`, `coderabbitai[bot]`, `sonarcloud[bot]`, `chatgpt-codex-connector`, or any login ending in `[bot]`.
 - **Human** — everything else.
 
 Record the tag alongside the thread's other data so Step 3, 3.6, and 3.7 can read it.
@@ -154,6 +156,32 @@ Populate one row per re-opened thread. The "original our-reply" column quotes th
 
 **Audit trail:** record every re-opened thread in the Step 8 final summary too, so the final report shows what was deferred to User.
 
+### 2.7. Separate stale findings from live ones — check `original_commit_id`, not `commit_id`
+
+Runs before triage, because a stale finding triaged as live sends you off to "fix" code that is already
+correct — and on a fast-moving PR that can burn a whole round.
+
+GitHub **re-anchors a review comment's `commit_id` to the current head** as the diff moves. A finding a bot
+filed against an earlier head therefore renders in the UI, and reads in the API, as though it targets your
+newest code. The field that doesn't move is `original_commit_id`: the head the reviewer actually looked at.
+
+```bash
+gh api repos/<o>/<r>/pulls/<n>/comments \
+  --jq '.[] | "\(.user.login) | anchored=\(.commit_id[0:8]) | reviewed=\(.original_commit_id[0:8]) | \(.path)"'
+```
+
+When `original_commit_id` is behind the current head, read the finding against the code **as it was at that
+SHA**, then check whether the current code still has the problem:
+
+- **Still present** → live finding, triage normally.
+- **Already fixed by a later commit** → "Already done". Reply naming the commit and the specific lines or
+  function behaviour that resolve it, so a human can verify from the thread without diffing, then resolve.
+  Do not re-edit the code.
+
+This matters most when a bot is nudged on several heads in quick succession: its queued reviews land out of
+order, so a batch of comments can mix genuinely-new findings with restatements of ones already fixed. Deciding
+that by reading `commit_id` alone is indistinguishable from guessing.
+
 ### 3. Triage comments
 
 Categorize each unresolved comment thread into one of the rows below. The **Bot** and **Human** columns show the default lean — they differ because bots typically don't see the conversation, linked issues, or deliberate design decisions that produced the diff, while humans usually do.
@@ -175,6 +203,8 @@ Categorize each unresolved comment thread into one of the rows below. The **Bot*
 **Maintainability-first — action is the default, even when it's not cheap.** Reuse / DRY / readability / naming / structure / dead-code comments are maintainability value, and maintainability matters long-term — so **default to actioning them in this PR**, not deferring. This extends Cheap-change-first past the "cheap" bar: a reviewer pointing out duplicated logic, a parameterisable helper, or a structure that will drift is usually *right*, and the cost of fixing it now (one focused refactor + tests) is almost always less than the cost of it rotting across copies. Do it now unless there's a concrete reason not to — and "it's a bit bigger than a one-liner" is **not** that reason. Deferring a maintainability comment to a follow-up is the exception, reserved for when the refactor is genuinely large/risky *and* the PR is time-critical (e.g. an urgent prod hot-fix); even then it's gated (Step 3.6 Skip-plan for humans, Step 3.5 issue-split with approval) and never silently skipped. When unsure, lean fix-now.
 
 **Reliability / edge-case carve-out — never auto-skip.** A bot flagging behaviour under edge conditions — missing / deleted / null records, empty results, resource exhaustion, repeated-failure or cache-miss storms, unbounded retries, exceptions on the unhappy path — is raising a correctness/reliability concern, not a style nit. These are never auto-skipped. Fix them (Step 4), or if genuinely out of scope escalate via Skip-plan (Step 3.6) so a human decides. Silently resolving such a thread hides the concern from the human reviewer (the PR shows "0 open threads") and can ship the defect straight through the merge gate.
+
+**Convention / standard-design deviation — always a User gate, never auto-anything.** This is distinct from the style row above and overrides it. If a comment reveals that the diff **breaks an established convention, standard design, ADR, or prior decision** (a naming format, an architectural pattern, a documented rule — e.g. a reviewer noting a new permission string is snake_case where every sibling is kebab-case), do **not** auto-fix it *and* do **not** auto-skip it. Conforming looks cheap, but the deviation may have been deliberate, and "fix" vs "keep" is User's call either way. Equally, if applying a comment *would* introduce such a deviation, gate it. Route it to User via `AskUserQuestion` (delegated mode: SendMessage the lead, who runs the question) with an explicit **"override the convention"** option — name the convention, the deviation, and the cost. Conform to the convention unless User selects override. He may not have noticed his own request broke a convention, so this gate is what surfaces silent drift. Record the disposition in the Step 8 summary.
 
 **Bot trigger phrases that route to Style / consistency / preference, not Actionable.** If the comment uses any of these phrasings AND isn't flagging a real bug/security/correctness issue, it's a candidate for the style row — but apply Cheap-change-first: if the suggested tweak is cheap and doesn't diverge from our direction, just do it rather than skipping. The phrasings:
 
@@ -357,9 +387,9 @@ which but 2>/dev/null
 
 **If `but` is available**, use the GitButler skill conventions:
 
-1. `but status --json` — get current state and IDs.
-2. `but commit <branch> -m "<msg>" --changes <ids> --json --status-after` — commit the fixes.
-3. `but push` — push to remote.
+1. `but status --format=json` — get current state and IDs.
+2. `but commit <branch> -m "<msg>" --changes <ids> --format=json --status-after` — commit the fixes.
+3. `but push <branch>` — push only the PR's owned branch. A bare non-interactive `but push` pushes every applied branch with unpushed commits.
 
 **If `but` is NOT available**, use standard git:
 

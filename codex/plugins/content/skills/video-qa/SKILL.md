@@ -1,9 +1,10 @@
 ---
 name: video-qa
 description: >
-  QA a demo or walkthrough MP4 against its intended storyboard and return a timestamped issue list.
-  Use for demo-video review, walkthrough critique, script comparison, and ship-readiness checks. Always
-  runs the deterministic probe, then hands analysis to a fresh teammate.
+  QA technical product-demo and software-walkthrough MP4s against an intended storyboard and return a
+  timestamped issue list. Use for screen-recorded UI demos and walkthroughs that need checks for scripted
+  beats, navigation flow, loading or error states, title cards, dead air, hard cuts, on-screen data,
+  branding, and ship readiness. Always runs the deterministic probe, then hands analysis to a fresh teammate.
 ---
 
 # video-qa

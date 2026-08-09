@@ -46,7 +46,7 @@ The classifications that change what you do:
 ## Phase 2 — Batch review + artifacts
 
 - **Group before reviewing.** By author first. A **stack is always one batch** — reviewing it as a unit is mandatory, because a later PR's rationale lives in its ancestors. Batch large single-author sets too; group across authors only when they share a clear theme.
-- **One durable artifact per batch, not per PR.** That's the whole point — it avoids the slow one-by-one grind. Each artifact carries an approve / don't-approve call per PR with the evidence. Follow the artifact + branding rules (brand resolved by the `brand-guidelines` skill), run the humanizer pass and the Playwright visual-QA loop.
+- **One durable artifact per batch, not per PR.** That's the whole point — it avoids the slow one-by-one grind. Each artifact carries an approve / don't-approve call per PR with the evidence. Match its length to the batch: enough evidence per PR to justify the call, no padding, no repeated boilerplate across PRs that share the same context. Follow the artifact + branding rules (brand resolved by the `brand-guidelines` skill), run the humanizer pass and the Playwright visual-QA loop.
 - **Delegate deep single-PR dives to `review-pr`** when one PR needs evidence-level scrutiny.
 - **Honour session-scoped rules the user sets** — e.g. "skip PRs where X is the reviewer unless I'm also assigned." These are per-session; never bake a specific person or rule into this skill.
 

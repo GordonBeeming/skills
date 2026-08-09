@@ -14,6 +14,11 @@ attachment endpoint has no public API. The reliable CLI path is a dedicated
 release that acts as an asset bucket: upload the file as a release asset, embed
 the download URL.
 
+**Every image gathered for the issue or PR gets uploaded**, unless User says to
+leave one out. Don't narrow the set to whichever screenshot seems most telling —
+the ones that look redundant while writing are often the ones that settle a
+question later.
+
 ## One-time repo setup
 
 Check whether the repo already has the bucket:
@@ -51,8 +56,16 @@ The public URL is:
 https://github.com/<owner>/<repo>/releases/download/assets/<file.png>
 ```
 
-Embed it with normal markdown: `![alt text](<url>)`. Verify before posting —
-`curl -sIL <url> | grep ^HTTP` should end in 200.
+Embed it with normal markdown: `![alt text](<url>)`. Verify before posting, via
+`gh` rather than the URL:
+
+```bash
+gh release view assets --repo <owner>/<repo> --json assets -q '.assets[].name' | grep -Fxq -- "<file>"
+```
+
+On a **private** repo an unauthenticated `curl -sIL <url>` returns 404 for an
+asset that uploaded fine and embeds fine, so a curl check reports a failure that
+isn't there. The `gh` listing is authenticated and works either way.
 
 ## Gotchas
 
@@ -67,5 +80,3 @@ Embed it with normal markdown: `![alt text](<url>)`. Verify before posting —
 - Don't reach for a git branch as the bucket instead — a branch shows up in
   clones/branch lists and someone will eventually delete it, killing the URLs
   (that exact thing happened the first time this was tried).
-
-First set up on `user/ide` (2026-07-11), used for issue #55.

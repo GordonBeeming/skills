@@ -1,7 +1,7 @@
 {
   "name": "git-workflow",
   "description": "PR lifecycle automation: autopilot PRs, branch and PR review, diff-only change maps, backlog triage, Dependabot batches, GitHub issue planning and security alerts, file uploads.",
-  "version": "0.1.29",
+  "version": "0.1.30",
   "author": {
     "name": "Gordon Beeming",
     "url": "https://github.com/GordonBeeming"

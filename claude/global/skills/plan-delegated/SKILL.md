@@ -22,6 +22,13 @@ control. Teammates never commit.
 The plan-approval gate is the point of this skill. It is never skipped — not for small work, not when
 User seems to be away. If he's away, park at the gate and wait.
 
+**Skipping the whole skill is a different decision, and it must be announced.** When the work is below
+the delegation threshold (a single-line change, a comment reply, an issue creation with its own flow)
+and you present a plain plan without this skill, the **first line** of that plan must be a 🔥 note
+saying you're skipping `/plan-delegated` and why — e.g.
+`🔥 Skipping /plan-delegated: single-line change + one test assertion — below the delegation threshold.`
+Always the first line, never buried at the bottom.
+
 ## Workflow
 
 ### 1. Capture the work
@@ -34,8 +41,9 @@ Take the work in whatever form it arrives:
 - A pasted spec or doc → read it fully.
 
 Record the source in the plan's Context section so the plan stands alone without this transcript.
-Make no assumptions about scope beyond what the source says — ambiguities become questions at the
-plan gate (AskUserQuestion before ExitPlanMode), not silent decisions.
+Make no assumptions about scope beyond what the source says — ambiguities, and any conflict with an
+established convention (see the convention-override hard rule), become questions at the plan gate
+(AskUserQuestion before ExitPlanMode), not silent decisions.
 
 ### 2. Research before planning
 
@@ -50,6 +58,12 @@ plan gate (AskUserQuestion before ExitPlanMode), not silent decisions.
 
 Break the work into workstreams, then staff them:
 
+- **Cap workstream count — fewer, larger beats more, smaller.** One teammate who can own a whole track
+  beats three splitting it into slivers; the coordination overhead (spec files, review rounds,
+  checkpoint commits) is real cost, not free parallelism. Split further only where tracks are
+  genuinely independent and would otherwise force sequencing on one file. Don't spin up a workstream
+  for something the lead can just finish directly in a handful of tool calls — that's not delegation,
+  that's overhead.
 - **Exclusive file ownership per concurrent wave.** Two teammates never write the same file at the
   same time — concurrent agents share one working tree. Workstreams that need the same file run in
   sequence, with a lead checkpoint commit between waves.
@@ -90,7 +104,8 @@ in this order:
 7. **Risks / open questions.**
 8. **Glossary** — alphabetical, every acronym and domain term used in the plan, last section.
 
-Run the humanizer pass on the plan prose before presenting it.
+Match the plan's length to what the work needs: cover the substance, don't pad with filler recap or
+boilerplate sections. Run the humanizer pass on the plan prose before presenting it.
 
 ### 5. Delegate on approval
 
@@ -135,7 +150,8 @@ The lead commits, per the git rules: GitButler (`but commit`) on the `gb/` branc
 Stop after committing — PR creation stays with the pull-request skill unless User asks for it.
 
 Close with a summary: what shipped per workstream, verification evidence (commands + observed
-results), feedback rounds per teammate, and anything deferred with User's decision noted.
+results), feedback rounds per teammate, and anything deferred with User's decision noted. Keep it
+substantive, not padded — skip recapping the plan he already approved.
 
 ## Hard rules
 
@@ -145,3 +161,10 @@ results), feedback rounds per teammate, and anything deferred with User's decisi
 - The lead independently re-runs verification before accepting any workstream.
 - All testing of running apps happens in scratch/e2e environments, never User's real files.
 - Escalation to User is for scope decisions, not for work a review round can fix.
+- **A convention deviation is an explicit, User-selected override — never silent.** If the work
+  would break an established convention, standard design, ADR, or prior decision (a naming format, an
+  architectural pattern, a documented rule), do not fold the deviation into the plan on your own —
+  *even when User's own request implies it*, because he may not have spotted the conflict. Surface
+  it at the plan gate with `AskUserQuestion`: name the convention, the deviation, and what breaking it
+  costs, with an explicit "override the convention" option. Carry the deviation into the plan only if
+  User picks the override; otherwise the plan conforms to the convention.

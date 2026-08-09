@@ -40,9 +40,9 @@ gh pr list --author app/dependabot --state open --json number,title,url,headRefN
 
 If zero PRs are found, report "No open Dependabot PRs" and stop.
 
-### 3. Analyze each PR (use parallel agents)
+### 3. Analyze each PR
 
-Spawn subagents to analyze the PRs concurrently — this is independent per-PR work that fans out cleanly, so use one subagent per PR (or batch into groups of 3-5 subagents) rather than analyzing them sequentially yourself. Each agent should:
+Below **5 open PRs**, just analyze them yourself in sequence — spawning subagents for a handful of PRs costs more than it saves. At **5 or more**, delegate: this is independent per-PR work that fans out cleanly, so spawn one subagent per PR, batched into groups of **at most 5 concurrent subagents** (queue the rest, don't launch them all at once). Each agent should:
 
 #### 3a. Fetch the diff
 

@@ -7,6 +7,8 @@ description: "Submit a tool to Shane Hanselman's Tiny Tool Town (tinytooltown.co
 
 Tiny Tool Town (https://www.tinytooltown.com) accepts free, fun, open-source tools through a GitHub issue form on `shanselman/TinyToolTown`. This skill takes a tool's repo, fills out that form, shows the user exactly what will be submitted, and opens the issue with `gh` once they approve.
 
+The deliverable is exactly one GitHub issue on `shanselman/TinyToolTown`. Don't widen this into extra work — no README edits, no screenshots generated on the fly, no submitting to other directories — and don't skip the approval gate in Step 6 because the fields all look right.
+
 The form changes over time, so **always re-download the current template at the start of every run** — never rely on a remembered field list.
 
 ## Workflow

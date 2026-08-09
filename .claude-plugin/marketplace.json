@@ -14,6 +14,12 @@
       "category": "development"
     },
     {
+      "name": "content",
+      "description": "Writing and media production: voice work, long-form and social content, branded infographics and decks, and demo-video recording and QA.",
+      "source": "./claude/content",
+      "category": "writing"
+    },
+    {
       "name": "global",
       "description": "General-purpose skills not tied to one project: secret management, codebase memory, plan review, and other cross-cutting helpers.",
       "source": "./claude/global",
