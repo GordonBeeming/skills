@@ -12,7 +12,7 @@ codex plugin add git-workflow@gordon-codex-skills
 
 ## Skills
 
-- **pull-request** — Own the whole PR cycle: commit, create a draft PR with Copilot review, resolve feedback through at most 3 bot-driven review/fix rounds with a delegated Terra teammate, publish, and merge after lead verification. Use when Gordon says '/pull-request', 'PR autopilot', 'pull request autopilot', 'create autopilot for this work', or gives a PR URL wanting comments resolved ('resolve PR comments', 'fix PR feedback', 'address review comments'). Not for bare 'create a PR' / 'ship it' (normal draft-PR flow via the GitButler skill), reviewing other people's PRs (review-pr / pr-review-backlog), or Dependabot batches (dependabot-review).
+- **pull-request** — Own the whole PR cycle: commit, create a draft PR with Copilot review, resolve feedback through at most 3 bot-driven review/fix rounds with a delegated Terra teammate, publish, and merge after lead verification. Use when User says '/pull-request', 'PR autopilot', 'pull request autopilot', 'create autopilot for this work', or gives a PR URL wanting comments resolved ('resolve PR comments', 'fix PR feedback', 'address review comments'). Not for bare 'create a PR' / 'ship it' (normal draft-PR flow via the GitButler skill), reviewing other people's PRs (review-pr / pr-review-backlog), or Dependabot batches (dependabot-review).
 - **review-branch** — Iterative, in-the-loop, expert-panel review of the branch you're working on versus the default
 - **review-pr** — Evidence-backed pull request review. Use when the user gives a PR URL, branch, or diff range and
 - **pr-change-map** — Explain what a pull request actually changes, read from its hunks alone (no title, body, labels,
