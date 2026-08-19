@@ -1,6 +1,6 @@
 # global
 
-General-purpose skills not tied to one project: secret management, codebase memory, plan review, and other cross-cutting helpers.
+General-purpose skills not tied to one project: secret management, plan review, and other cross-cutting helpers.
 
 ## Install
 
