@@ -103,6 +103,8 @@ Per tick, same steps 1–6 as the draft phase, plus the merge-readiness evaluati
 
 Keep it terse — the lead relays what matters to User:
 
+Capture the timestamp at report time with `date -u '+%Y-%m-%dT%H:%M:%SZ'` (or the runtime equivalent). Never emit a rounded, placeholder, guessed, or partially formatted timestamp. If timestamp capture fails, omit the timestamp instead of inventing one.
+
 ```
 PR #<n> <phase: draft|published> — tick at <UTC ISO>
 Threads: N unresolved (reviewThreads GraphQL)
