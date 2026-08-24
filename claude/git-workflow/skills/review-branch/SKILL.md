@@ -86,6 +86,13 @@ Finder job is **coverage, not filtering** — give every expert this instruction
 Experts must **read the surrounding base-branch code before judging** — a diff line alone is not enough
 context to call a bug.
 
+**Confirm every expert actually returned an array before synthesising.** A subagent going idle without
+delivering its findings is a silent failure: nothing errors, and the pass looks complete while an angle
+was never covered. Check each expert's output arrived; for any that didn't, request it once, and if it
+still doesn't come, **review that angle directly** rather than shipping reduced coverage. Either way,
+state in the artifact and the final response which experts actually reported — a review that reads like
+nine perspectives when it was one is worse than an honestly narrow review.
+
 ### 4. Verify (precision gate)
 Follow `references/verification.md`: dedup across experts, score each finding 0–100 for real-vs-false-
 positive, re-check any CLAUDE.md-derived finding against the actual rule text, and **escalate to
