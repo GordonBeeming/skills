@@ -33,6 +33,12 @@ function overlayScript(cfg) {
   return `(() => {
   if (window.__studio) return; window.__studio = true;
   const ACCENT=${JSON.stringify(cfg.accent)}, CUR=${JSON.stringify(cfg.cursor)};
+  // Caption placement. It composites above everything, so a surface whose controls live in the
+  // bottom-left corner needs it moved rather than made transparent.
+  const LT=${JSON.stringify({ left: 40, bottom: 40, ...(cfg.lowerThird || {}) })};
+  // Anchor to the top instead when a top offset is given, for a surface whose own content fills the
+  // bottom of the frame edge to edge and leaves no corner free.
+  const LTY = LT.top != null ? 'top:'+LT.top+'px;' : 'bottom:'+LT.bottom+'px;';
   function add() {
     if (!document.body) return;
     if (!document.getElementById('__cur')) {
@@ -57,7 +63,7 @@ function overlayScript(cfg) {
       // elements) silently discards an injected <style>'s rules, leaving the card unstyled static
       // text in the document flow. Inline style attributes survive on every page we've met.
       const lt=document.createElement('div'); lt.id='__lt';
-      lt.style.cssText='position:fixed;left:40px;bottom:40px;z-index:2147483647;display:flex;align-items:stretch;min-width:560px;max-width:1180px;min-height:88px;background:#fff;border-radius:14px;box-shadow:0 12px 36px rgba(10,20,50,.30);overflow:hidden;font-family:-apple-system,Helvetica,Arial,sans-serif;opacity:0;transform:translateY(16px);transition:opacity .35s ease,transform .35s ease;';
+      lt.style.cssText='position:fixed;pointer-events:none;left:'+LT.left+'px;'+LTY+'z-index:2147483647;display:flex;align-items:stretch;min-width:560px;max-width:1180px;min-height:88px;background:#fff;border-radius:14px;box-shadow:0 12px 36px rgba(10,20,50,.30);overflow:hidden;font-family:-apple-system,Helvetica,Arial,sans-serif;opacity:0;transform:translateY(16px);transition:opacity .35s ease,transform .35s ease;';
       const b=document.createElement('div'); b.className='b';
       b.style.cssText='padding:14px 128px 14px 28px;display:flex;flex-direction:column;justify-content:center;gap:4px;flex:1;';
       const k=document.createElement('div'); k.className='k';
@@ -178,6 +184,26 @@ export async function slowMoveTo(page, x, y) {
     await page.waitForTimeout(22);
   }
   LAST = { x, y };
+}
+
+// Drag a pannable surface (canvas, diagram, map) by a delta, as a real press-move-release the
+// recording captures. Panning by hand is also how a viewer expects a canvas to move, so this stays a
+// visible user action rather than a scripted camera jump.
+// A caption or lower-third sits over the bottom of the frame, so a control the app has just brought
+// to the lower edge is technically on screen and still reads as hidden. Pan it clear before clicking.
+export async function dragBy(page, fromX, fromY, dx, dy, { grabMs = 220, frames = 26 } = {}) {
+  await slowMoveTo(page, fromX, fromY);
+  await page.mouse.down();
+  await page.waitForTimeout(grabMs);
+  for (let i = 1; i <= frames; i++) {
+    const t = i / frames;
+    const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    await page.mouse.move(fromX + dx * e, fromY + dy * e);
+    await page.waitForTimeout(20);
+  }
+  await page.mouse.up();
+  LAST = { x: fromX + dx, y: fromY + dy };
+  await page.waitForTimeout(260);
 }
 
 // Visibly scroll (mouse wheel) ONLY when the target is actually off-screen / clipped, bringing it into view
