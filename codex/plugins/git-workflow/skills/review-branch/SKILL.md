@@ -65,8 +65,6 @@ proceed unless genuinely ambiguous.
 - Collect the relevant `AGENTS.md` / `CLAUDE.md` **paths** (repo root + each touched directory) — pass
   paths to the experts, don't inline-dump the contents into every one.
 - Produce a short plain-language summary of what the change does.
-- Get call-chain / blast-radius context from the codebase knowledge-graph MCP tools (`search_graph`,
-  `trace_path`) per the SessionStart protocol. Index first if the repo isn't indexed.
 - **Triage** the diff against `references/triage.md` to select the dynamic experts for this pass.
 
 ### 3. Run the expert panel (parallel subagents)

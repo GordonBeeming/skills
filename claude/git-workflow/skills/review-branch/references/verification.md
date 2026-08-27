@@ -52,6 +52,22 @@ How to run:
 Record the exact command and its real result on the finding — including failures and skips. A green
 check is data, not proof the finding is resolved; connect the result back to the specific claim.
 
+**A new check must not measure with the construct it is checking.** When a finding is "this construct
+is wrong", the test written to prove it is fixed reaches for the nearest idiom to inspect the
+result — and the nearest idiom is very often the broken one. A test guarding against pattern matching
+that fails on certain inputs, written with a pattern match to count the result, fails on exactly the
+inputs it exists to cover. It then reports a defect in code that is correct, and the obvious next move
+is to "fix" the code.
+
+So when a fresh check fails on its first run, suspect the check before the change, and confirm the
+measurement independently: assert with plain string equality, an explicit loop, or a different tool
+from the one under test. The tell is a failure that reproduces the exact shape of the original bug in
+the assertion rather than in the behaviour.
+
+The inverse holds too. A check that passes immediately proves nothing until you have seen it fail:
+break the fix, watch the check go red, restore. A green assertion that never had the chance to be red
+is indistinguishable from one that does not test anything.
+
 ## 4. Classify and bar
 
 - `confidence ≥ 80` **and** at/above the severity bar (default ≥ Medium) → **confirmed** → main report.
