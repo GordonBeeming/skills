@@ -1,7 +1,7 @@
 {
   "name": "global",
   "description": "General-purpose skills not tied to one project: secret management, plan review, and other cross-cutting helpers.",
-  "version": "0.2.29",
+  "version": "0.2.30",
   "author": {
     "name": "Gordon Beeming",
     "url": "https://github.com/GordonBeeming"

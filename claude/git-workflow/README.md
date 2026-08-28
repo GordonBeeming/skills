@@ -24,6 +24,7 @@ done
 
 - **review-branch** — Iterative, in-the-loop, expert-panel review of the branch you're working on versus the default
 - **review-pr** — Evidence-backed pull request review. Use when the user gives a PR URL, branch, or diff range and
+- **blind-review-pr** — Explain what a pull request actually changes, read from its hunks alone (no title, body, labels,
 - **pr-review-backlog** — Use when clearing or triaging a BACKLOG of many open PRs in one session — "review all the open
 - **dependabot-review** — Review and batch-merge open Dependabot pull requests. Only invoke explicitly with /dependabot-review. Lists all open Dependabot PRs, analyzes each for security and compatibility concerns, presents a plan with approval comments, then approves and merges safe PRs on user confirmation.
 - **github-issue-planner** — Plan implementation for a GitHub issue. Use this skill whenever the user pastes a GitHub issue URL (e.g., https://github.com/org/repo/issues/123), mentions a GitHub issue number in the context of a repo, or asks to plan work for a bug, PBI, or feature tracked in GitHub Issues. Also trigger when the user says things like 'plan this issue', 'look at this bug', or provides a GitHub link with minimal other instructions — the intent is almost always 'fetch the issue, understand the codebase, and give me a plan'. Even a bare URL with no other text should trigger this skill.

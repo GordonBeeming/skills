@@ -29,6 +29,23 @@ saying you're skipping `/plan-delegated` and why — e.g.
 `🔥 Skipping /plan-delegated: single-line change + one test assertion — below the delegation threshold.`
 Always the first line, never buried at the bottom.
 
+### Read-only work is out of scope
+
+This skill exists to gate and parallelize **changes to a repo**. Work whose whole output is knowledge —
+research, an investigation, a review, an audit, an explainer, and the artifact or report that carries it —
+has nothing to gate: no code lands, no commit happens, and the artifact is the deliverable rather than a
+step toward one. Splitting that kind of work across teammates usually makes it worse, because a single
+coherent pass is what produces the through-line a reader wants.
+
+So don't route read-only work through this skill. Plan mode still applies (the plan is how User sees
+your reading of the request before you spend the tokens), and the plan's first line still carries the 🔥
+skip note, e.g. `🔥 Skipping /plan-delegated: read-only — research plus an artifact, nothing to
+implement.`
+
+The line is about what the work *produces*, not how big it is. A read-only task that ends in a code
+change (an investigation that carries into the fix) uses this skill for the fix half, once the research
+is done and there is something to build.
+
 ## Workflow
 
 ### 1. Capture the work
