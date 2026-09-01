@@ -1,6 +1,6 @@
 {
   "name": "git-workflow",
-  "version": "0.1.14",
+  "version": "0.1.15+codex.20260901040954",
   "description": "PR lifecycle automation: autopilot PRs, branch and PR review, diff-only blind reviews, backlog triage, Dependabot batches, GitHub issue planning and security alerts, file uploads.",
   "author": {
     "name": "Gordon Beeming",
@@ -13,7 +13,10 @@
     "longDescription": "Codex-native pull request creation, review, blind diff-only reads, comment resolution, backlog triage, and merge workflows.",
     "developerName": "Gordon Beeming",
     "category": "Development",
-    "capabilities": ["Interactive", "Write"],
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
     "defaultPrompt": [
       "Create a pull request for my current changes.",
       "Review this branch before I publish it.",
