@@ -1,6 +1,6 @@
 # git-workflow
 
-PR lifecycle automation: autopilot PRs, branch and PR review, diff-only blind reviews, backlog triage, Dependabot batches, GitHub issue planning and security alerts, file uploads.
+PR lifecycle automation: autopilot PRs, branch and PR review, diff-only blind reviews, backlog triage, unattended approval sweeps, Dependabot batches, GitHub issue planning and security alerts, file uploads.
 
 ## Install
 
