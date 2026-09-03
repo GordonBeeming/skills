@@ -23,7 +23,10 @@ no dead air, overlays never spanning a navigation, the QA rules, the bug-signal 
 - **Inline callout overlays**: small positioned boxes ringing an element or holding a one-line note
   (`page.screencast.showOverlay(html, { duration })`, or an evaluated `<div>` with **inline styles
   only** — no injected stylesheets, so a partial teardown can't strip the styling). Position from the
-  target's `boundingBox()`. Await the full duration before moving on.
+  target's `boundingBox()`. Await the full duration before moving on. **Pick the side with room
+  rather than clamping to the viewport**: a note hard-clamped to the left edge lands on top of the
+  very element it points at, which reads worse than no note at all. Measure whether the preferred
+  side fits and flip to the other side when it does not.
 - **Segments**: one webm per user-flow chunk. Between segments the driver (you) can do host-side work —
   fetch a one-time code, compute a TOTP, reset state — and then continue. Anything the viewer would
   wonder about ("how did that state change?") either stays out of light mode's scope or gets a chapter
@@ -53,6 +56,21 @@ Two-factor prompts during a recorded login:
 - Failed/malformed submits count as real failed attempts — enough of them **locks the account out**, and
   the mail-sink codes expire. Script the login carefully and keep the account-unlock reset handy.
 
+## Attach one-shot overlays to `documentElement`, not `<body>`
+
+A chapter card or callout appended to `document.body` disappears within a frame or two on any app
+that owns the DOM (Blazor, React, Vue, anything re-rendering into a root inside body). The renderer
+replaces body's children and takes the overlay with it, so the card is created, never painted, and
+the recording simply has no chapter transitions in it. Nothing errors, which is what makes it easy
+to miss until the frame-sample pass.
+
+The studio core's own cursor and lower-third survive this because `overlayScript` runs a
+MutationObserver that re-adds them whenever they vanish. A one-shot card has no such guard.
+
+So append overlays to `document.documentElement` instead. It sits outside the app's render root, so
+a re-render cannot reach it, and no observer is needed for something that only has to live a couple
+of seconds.
+
 ## The overlay/navigation gotcha (why rule 4 exists)
 
 A chapter card or callout injected into the live page is torn down by navigation — but not cleanly: the
@@ -63,7 +81,9 @@ and glaring at full size. Prevention:
 - After showing a chapter/callout with duration N, `waitForTimeout(N + ~300ms)` before ANY click,
   `goto`, or form submit.
 - Prefer the lower-third (`setStep`) for anything that must persist across navigation — it is re-injected
-  per-load by design.
+  per-load by design. **Its text is not.** `addInitScript` rebuilds an empty lower-third on each
+  load and only a `setStep` call fills it, so a step set before a `goto` comes back blank and that
+  beat runs with no caption at all. Call `setStep` *after* every navigation, never before.
 - Prefer inline-styled overlay elements over stylesheet-dependent ones, so even a partial teardown can't
   produce unstyled text.
 

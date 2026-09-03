@@ -91,6 +91,22 @@ still doesn't come, **review that angle directly** rather than shipping reduced 
 state in the artifact and the final response which experts actually reported — a review that reads like
 nine perspectives when it was one is worse than an honestly narrow review.
 
+**Expect to chase roughly half of them, and reconcile on a schedule rather than on suspicion.** This is
+the common case, not an edge case: a panel routinely has several experts finish their work and end their
+turn without ever calling SendMessage. So don't wait until the findings feel thin to notice. Write down
+the spawn list, and before synthesising anything, tick off each name against a delivery you actually
+received. `ListAgents` is the check — an expert sitting `idle` with nothing in your inbox has finished
+and not reported.
+
+The trap is that **an idle notification looks like a completion signal and is not one.** It says the turn
+ended, not that the work arrived, and the two are easy to conflate when several land together. A chased
+expert usually replies with the full array immediately and often says it sent once already, so the cost
+of asking is one message and the cost of not asking is a silently missing angle.
+
+When one still doesn't deliver after a single re-request, cover it yourself and say so by name in the
+artifact — "correctness: covered by the lead" is honest and useful; a roster implying nine independent
+readings when four came from the lead is neither.
+
 ### 4. Verify (precision gate)
 Follow `references/verification.md`: dedup across experts, score each finding 0–100 for real-vs-false-
 positive, re-check any CLAUDE.md-derived finding against the actual rule text, and **escalate to
