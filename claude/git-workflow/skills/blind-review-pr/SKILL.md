@@ -108,12 +108,8 @@ no number, because it reads as authority.
   artifact describes, it doesn't prosecute.
 - Deliver the blind review that was asked for. Don't expand into fix suggestions, follow-up tickets, or a
   refactor proposal.
-- **No `/plan-delegated`.** This skill only reads and writes an artifact, so there is nothing to delegate
-  and no implementation to gate. Two things follow from that. The read itself must not be split across
-  subagents, for the reason in the Workflow section: the value is one coherent pass. And the artifact
-  build needs no delegated plan of its own, so skip the skill and say so in the plan's first line with
-  the 🔥 note `plan-delegated` asks for, e.g. `🔥 Skipping /plan-delegated: read-only skill — the read is
-  done and only the artifact build remains.`
+- Keep the read and artifact build in one coherent pass. Do not split them across subagents; the value is
+  one reviewer preserving the through-line from the hunks into the artifact.
 
 ## Output
 

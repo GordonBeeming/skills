@@ -21,7 +21,7 @@ The caller (you, in the main thread) does the **minimum**:
 
 1. Locate the inputs.
 2. Run the probe script.
-3. Spawn a fresh independent teammate with `spawn_agent` to do the analysis.
+3. Spawn a fresh independent subagent (the `Agent` tool) to do the analysis.
 4. Relay the subagent's issue list back to the user.
 
 **Never read the extracted frames or reason over the report yourself in the caller
@@ -52,12 +52,11 @@ You need:
 ## Step 2 — Run the deterministic probe
 
 ```bash
-PLUGIN_ROOT="<plugin root resolved from this SKILL.md path>"
-node ${PLUGIN_ROOT}/skills/video-qa/scripts/probe.mjs \
+node ${CLAUDE_PLUGIN_ROOT}/skills/video-qa/scripts/probe.mjs \
   --video "<absolute/path/to/video.mp4>" \
   --out   "<workdir>/video-qa-report.json" \
   --frames-dir "<workdir>/video-qa-frames" \
-  --card-rgb 57,64,245 \          # the brand card colour as R,G,B (e.g. #3940F5)
+  --card-rgb 15,81,255 \          # the brand card colour as R,G,B (e.g. #0F51FF)
   --cards-file "<workdir>/cards.json"   # the expected storyboard cards, in order
 ```
 
@@ -90,7 +89,7 @@ error — let the subagent confirm it against the frames.
 
 ## Step 3 — Hand off to the analysis subagent
 
-Spawn a fresh teammate with `spawn_agent` and a bounded verification prompt.
+Spawn a fresh subagent with the `Agent` tool (`subagent_type: general-purpose`).
 Build its prompt from `references/analysis-prompt.md`, substituting:
 
 - `{{REPORT_PATH}}` → the `--out` path from step 2.

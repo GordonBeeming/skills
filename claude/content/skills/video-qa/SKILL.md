@@ -56,7 +56,7 @@ node ${CLAUDE_PLUGIN_ROOT}/skills/video-qa/scripts/probe.mjs \
   --video "<absolute/path/to/video.mp4>" \
   --out   "<workdir>/video-qa-report.json" \
   --frames-dir "<workdir>/video-qa-frames" \
-  --card-rgb 57,64,245 \          # the brand card colour as R,G,B (e.g. #3940F5)
+  --card-rgb 15,81,255 \          # the brand card colour as R,G,B (e.g. #0F51FF)
   --cards-file "<workdir>/cards.json"   # the expected storyboard cards, in order
 ```
 
