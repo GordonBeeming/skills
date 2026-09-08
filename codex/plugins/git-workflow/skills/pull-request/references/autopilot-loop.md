@@ -19,6 +19,12 @@ When a review fix touches a script that writes outside the repo — an installer
 - **The background-wait notification often does NOT re-invoke you into a new turn**: the timer fires and the completion event just sits until the lead sends a message. Foreground `sleep` is blocked by the harness, so you can't hand-roll a wait either. Net effect: **treat a nudge from the lead as your heartbeat** — the lead polls the PR every ~10 min and messages you to run the next tick. Do the tick when nudged, report, idle. Don't burn cycles diagnosing a "freeze" that is really just this — but do tell the lead once, early, that you rely on their nudge so they don't mistake you for dead.
 - **Hard cap: 3 bot-driven review/fix rounds total**, as defined below. Also stop after 3 hours of total runtime and report to the lead.
 
+## Recoverable command errors are not escalation checkpoints
+
+A wrong working directory, shell quoting error, stale patch context, missing relative path, or combined command that produces no completion output is a command-invocation problem — not a failed fix and not a reason to end the assignment. Inspect the live worktree and command output, correct the invocation (split combined commands when useful), and continue from the existing changes.
+
+Do not send a final response while the assigned batch's stated completion condition is still unmet. Use an interim `send_message` for progress if the lead needs visibility, then keep working. A final response before completion is reserved for a genuine blocker: a required product/design decision, a permission or signing gate, the same diagnosed source/test failure persisting after a concrete fix attempt, or an explicit workflow cap.
+
 ## Phase 1 — draft
 
 The PR was created as a draft with Copilot's review requested. Bots iterate here where reviews are cheap; publishing waits until they've gone quiet.
