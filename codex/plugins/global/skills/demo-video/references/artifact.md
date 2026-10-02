@@ -58,7 +58,7 @@ The artifact tracks the live progression, so it should never be more than one cu
 ## Clickable code refs
 
 When the copy references a file/line on this machine, link it with the VS Code Insiders scheme
-`vscode-insiders://file/{absolute_path}:{line}` and shorten the visible text (per the global artifact
+`http://localhost:17877/browse?path={percent-encoded absolute path}` and shorten the visible text (per the global artifact
 linking rule). The `src/...ClientLib` Kiota-generated client and similar are off-limits to cite as
 "review this".
 

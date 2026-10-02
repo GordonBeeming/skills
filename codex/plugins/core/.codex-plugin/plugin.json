@@ -1,0 +1,26 @@
+{
+  "name": "core",
+  "version": "0.1.50+codex",
+  "description": "Gordon's always-on workflow set for Codex: /work (plan, build, verify, PR with an autonomy dial), /review (PR and branch review with a depth dial), /skill-fix, the azure context skill, git-usage, envlock, and the cross-agent runners.",
+  "author": {
+    "name": "Gordon Beeming",
+    "url": "https://github.com/GordonBeeming"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Core",
+    "shortDescription": "Gordon's always-on workflows.",
+    "longDescription": "Menu-first workflows: /work builds with an autonomy dial, /review reviews with a depth dial, both read the org profile and the environment lock, and hand work to Claude or Antigravity when the pool allows.",
+    "developerName": "Gordon Beeming",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Plan and build this issue.",
+      "Review this pull request.",
+      "Which Azure subscription is this repo on?"
+    ]
+  }
+}

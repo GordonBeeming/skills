@@ -121,3 +121,12 @@ export function concat(segs, out) {
 export function probeDuration(file) {
   try { return parseFloat(execSync(`ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 "${file}"`, { encoding: 'utf8' }).trim()); } catch { return 0; }
 }
+
+// Composite a transparent PNG (a rendered callout / lower-third from cards.mjs) onto a clip for the
+// [from,to] second span. This is how quick-mode screen recordings get annotations after the fact:
+// nothing is injected into the page, the overlay is drawn on the video. x/y are the PNG's top-left
+// in the 1920x1080 frame. Keeps the source fps (see probeFps) so nothing resamples.
+export function overlayClip(mp4, png, out, { from, to, x = 0, y = 0, fps } = {}) {
+  const f = fps || probeFps(mp4);
+  sh(`ffmpeg -y -i "${mp4}" -i "${png}" -filter_complex "[0:v]fps=${f}[b];[b][1:v]overlay=${x}:${y}:enable='between(t,${from},${to})',format=yuv420p[v]" -map "[v]" ${VENC} "${out}"`);
+}

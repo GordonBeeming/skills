@@ -2,7 +2,6 @@
 // interstitial ("behind the scenes"), and end (recap). Cards are rendered as HTML then screenshot
 // to PNG — this ffmpeg build has no drawtext/freetype, so text-on-video has to come in as images.
 // Playwright is loaded via createRequire because it ships CommonJS. Resolve it plainly first — this
-// finds a global install on NODE_PATH (a shunt guest bakes one in) with no machine-specific path —
 // and fall back to a fixed host install location only if that fails.
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -55,9 +54,20 @@ export async function renderCards(cards, outDir) {
     // Resolve to an absolute file:// URL — a relative outDir (e.g. './vid') yields the invalid
     // `file://./vid/…` and Playwright fails to navigate.
     await p.goto(pathToFileURL(htmlPath).href); await p.waitForTimeout(250);
-    await p.screenshot({ path: pngPath });
+    await p.screenshot({ path: pngPath, omitBackground: true, fullPage: c.name.startsWith('callout') ? false : undefined });
     out.push(pngPath);
   }
   await b.close();
   return out;
 }
+
+// callout: a small brand-accent pill with one line of text on a TRANSPARENT background, sized to
+// its content. Rendered by renderCards like the full-frame cards; composite it with
+// assemble.overlayClip at the x/y where it should sit. Use for quick-mode recordings, where the
+// page can't be annotated in place.
+export const callout = (cfg, { text }) => `<!doctype html><meta charset="utf-8"><style>
+html,body{margin:0;background:transparent}
+.c{display:inline-block;font-family:${cfg.fontFamily || 'ui-sans-serif, system-ui, sans-serif'};font-size:28px;font-weight:600;
+   color:${cfg.calloutText || '#fff'};background:${cfg.accent};padding:12px 20px;border-radius:12px;
+   box-shadow:0 6px 18px rgba(0,0,0,.25);white-space:nowrap}
+</style><div class="c">${text}</div>`;

@@ -14,7 +14,8 @@
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL"
       },
-      "category": "Development"
+      "category": "Development",
+      "description": "PR lifecycle automation: autopilot PRs, branch and PR review, diff-only blind reviews, backlog triage, unattended approval sweeps, Dependabot batches, GitHub issue planning and security alerts, file uploads."
     },
     {
       "name": "content",

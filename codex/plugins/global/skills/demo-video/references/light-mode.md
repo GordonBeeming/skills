@@ -32,8 +32,6 @@ no dead air, overlays never spanning a navigation, the QA rules, the bug-signal 
 ## Recording
 
 Same guest-mode rule as full mode (`recording.md`): **record where the app runs.** For an app in a
-shunt siding, copy the runner + `config.mjs` to the siding's standing output directory (mounted at
-`/out` in the guest) and run it there (`shunt-dev run <siding> node /out/demo/<runner>.mjs`); the core
 is imported from the copied path. Recordings land back under that same directory on the host.
 
 Auth in light mode: logins **may** stay on camera when they're part of the story (e.g. the feature being

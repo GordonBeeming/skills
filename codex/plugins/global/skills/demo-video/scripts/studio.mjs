@@ -5,7 +5,6 @@
 // these functions, defines its own URLs/selectors, and passes a CFG (see config.example.mjs).
 //
 // Playwright is loaded via createRequire because it ships CommonJS. Resolve it plainly first — this
-// finds a global install on NODE_PATH (a shunt guest bakes one in) with no machine-specific path —
 // and fall back to a fixed host install location only if that fails.
 import { createRequire } from 'node:module';
 import fs from 'node:fs';

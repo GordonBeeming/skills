@@ -8,8 +8,14 @@
   },
   "plugins": [
     {
+      "name": "core",
+      "description": "Gordon's always-on workflow set: /work (plan, build, verify, PR with an autonomy dial), /review (PR and branch review with a depth dial), /skill-fix, the azure context skill, envlock, cross-agent runners for Codex and Antigravity, and the hooks that enforce them.",
+      "source": "./claude/core",
+      "category": "productivity"
+    },
+    {
       "name": "git-workflow",
-      "description": "PR lifecycle automation: autopilot PRs, branch and PR review, backlog triage, Dependabot batches, GitHub issue planning and security alerts, file uploads.",
+      "description": "PR lifecycle automation: autopilot PRs, branch and PR review, diff-only blind reviews, backlog triage, unattended approval sweeps, Dependabot batches, GitHub issue planning and security alerts, file uploads.",
       "source": "./claude/git-workflow",
       "category": "development"
     },

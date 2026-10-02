@@ -3,37 +3,6 @@
 The recorder core is `scripts/studio.mjs`. It takes a CFG (see `config.example.mjs`) and carries no
 app-specific constants — your `videoN.mjs` defines URLs/selectors and drives the flow.
 
-## Guest-mode recording (app running in an isolated dev container)
-
-**Record where the app runs.** When the target app runs inside an isolated dev container (a shunt
-siding) rather than directly on the host, run the studio recording step **in the guest** — that way
-several sidings can record in parallel instead of contending for the one host-visible app. Only the
-recording step moves; everything after it stays on the host exactly as elsewhere in this skill.
-
-1. Copy the runner (`videoN.mjs`), the core (`studio.mjs`/`cards.mjs`), and the version's `config.mjs`
-   into the siding's standing output directory on the host — that same directory is mounted into the
-   guest at `/out`.
-2. Run the recorder via the container tooling's exec command, targeting the copied script inside the
-   guest (e.g. `shunt-dev run <siding> node /out/demo/<runner>.mjs`).
-3. Recorded webm segments and stills land back under that same standing output directory. Copy them
-   into the version's `vid/` folder in the artifacts working dir before building — assembly reads from
-   there like any other run.
-
-Assembly (`assemble.mjs`, ffmpeg), card rendering, and the HTML artifact are host-only — none of that
-moves into the guest. `recordVideo`'s output size is driven by the size/viewport you
-already set in `launch()`; guest mode doesn't change that.
-
-**The Chromium launch options apply the same way in both worlds — no guest-only branch.** The target
-app's dev HTTPS cert is a self-signed leaf on the host exactly as it is in a guest, and Chromium's own
-verifier rejects a self-signed leaf as a trust anchor regardless of any system/NSS trust — that's why
-`launch()` and `saveAuth()` always pass `args: ['--allow-insecure-localhost']` to `chromium.launch()`,
-unconditionally. The flag waives cert errors scoped to literal `localhost`/`127.0.0.1` origins, which
-is all these recordings ever hit. Never reach for `ignoreHTTPSErrors` instead — it disables certificate
-checking far more broadly than the one cert this is actually working around.
-
-**Auth/storageState in guest mode** follows the same `saveAuth` recipe as below, just run and
-persisted in-guest: save the state file under the standing output directory so every segment in that
-guest reuses it, and it stays inspectable from the host afterwards.
 
 ## API
 

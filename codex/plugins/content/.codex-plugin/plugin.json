@@ -1,6 +1,6 @@
 {
   "name": "content",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "description": "Writing and media production: voice work, long-form and social content, branded infographics and decks, and demo-video recording and QA.",
   "author": {
     "name": "Gordon Beeming",
@@ -13,7 +13,10 @@
     "longDescription": "Codex-native writing, presentation, voice, demo-video, brand, and media-QA workflows.",
     "developerName": "Gordon Beeming",
     "category": "Writing",
-    "capabilities": ["Interactive", "Write"],
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
     "defaultPrompt": [
       "Write this in Gordon's voice.",
       "Turn this page into a branded presentation.",
