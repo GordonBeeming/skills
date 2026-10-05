@@ -1,6 +1,6 @@
 {
   "name": "global",
-  "version": "0.2.12+codex.20260926053106",
+  "version": "0.2.13+codex",
   "description": "General-purpose skills not tied to one project: secret management, plan review, and other cross-cutting helpers.",
   "author": {
     "name": "Gordon Beeming",

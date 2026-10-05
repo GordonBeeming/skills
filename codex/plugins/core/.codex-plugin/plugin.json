@@ -1,6 +1,6 @@
 {
   "name": "core",
-  "version": "0.1.50+codex",
+  "version": "0.1.52+codex",
   "description": "Gordon's always-on workflow set for Codex: /work (plan, build, verify, PR with an autonomy dial), /review (PR and branch review with a depth dial), /skill-fix, the azure context skill, git-usage, envlock, and the cross-agent runners.",
   "author": {
     "name": "Gordon Beeming",

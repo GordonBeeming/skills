@@ -335,6 +335,28 @@ Procedure in `${CLAUDE_PLUGIN_ROOT}/skills/work/references/pr-cycle.md`. The sha
    drafts. False: leave the merge to User; the drafts stay in the run dir and the
    `pr-closing-sweep` routine posts them when the PR merges. The report says which.
 
+## Waiting is a check, never a state
+
+A run is doing one of three things when a turn ends, and the third is a bug:
+
+1. **Working.** Fine.
+2. **Parked on User**: `caps.pausedAt` set, the step marked `blocked (waiting: <what>)`, one line
+   saying what returns the turn. His next message resumes it. Fine.
+3. **"Waiting" for something that is not a person**: a teammate, a suite, CI, a bot. This is the bug.
+   Nothing wakes a session that has simply stopped, so the run sits idle until User notices, which
+   has cost hours.
+
+So there is no such thing as waiting for a machine. Either go and look now (read the log, the report
+file in `<run dir>/reports/`, `gh pr checks`), or arm something that exits when the thing happens and
+wakes the session: `run_in_background` on the command itself, a loop that ends when the report file
+appears, a `Monitor` on the log, `scripts/pr-watch.sh` for a PR. Record each watcher's pid in
+`run.json.watchers[]` and clear it when it is done. The `run-stop-guard` Stop hook refuses a turn
+that ends with a step still running, nobody parked, and no watcher alive.
+
+A teammate that has gone quiet is not a wait either: check its worktree diff and its report file,
+and if both say it is finished, take the work over. If neither does, mark the row `failed (stalled)`
+and do it yourself. Never say "I'll check on it later" and end the turn.
+
 ## A question User does not answer in time
 
 The question tool gives him a minute. A minute passing means he was not at the screen, so it is not
