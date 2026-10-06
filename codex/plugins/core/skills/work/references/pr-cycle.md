@@ -62,6 +62,14 @@ his voice, first person. So:
   and never describe one in chat ("Q2 names you as plan reviewer"): a summary carrying answers
   User has not given reads as though he gave them. Draft only the sections the diff proves, ask,
   then write the body from his answers.
+- When the run has a source issue, a question about what triggered the change is not asked. The
+  answer is the issue link (`Refs #<n>` in the repo's own form) and nothing more: no made-up summary
+  of the issue beside it. Write it straight into the answers file as the answer to that question.
+  The question is only asked when there is no issue (plain words, a spec file).
+- User is the author of everything these runs produce. Any question about another person (who
+  reviewed, who paired, who approved) never offers him, `@user`, "me", or "I did" as an
+  option; the `question-guard` hook refuses it. The options are the people who might have, by handle,
+  and the empty answer in the question's words ("nobody").
 - Options come from what the question is asking, never from a fixed list. Read the template
   question, work out what it expects and who it is about, and offer the answers that are actually
   available for it. A question about someone other than the author is not satisfied by the author:

@@ -116,6 +116,12 @@ Shape from the shared v1 contract, with `mode` carrying the review switches.
 Every reviewer returns the `findings` array only. `line` is the anchor in the head version; the
 start line for a range. `confidence` is the finder's own guess until step 4 overwrites it.
 
+## What counts as a finding
+
+A defect in the code the diff changed, stated with `file:line`. The state of CI is not a finding at
+any depth: a failing check is followed to the code and reported as the defect it exposes, or left
+out with a line in the notes when it is flaky, infrastructural, or inherited from the base branch.
+
 ## Scoring rubric (deep, step 4)
 
 - **0**: false positive on light scrutiny, or a pre-existing issue the change did not introduce.

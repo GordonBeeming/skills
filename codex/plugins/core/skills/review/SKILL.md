@@ -165,8 +165,8 @@ Input: `findings.json`. Output: `findings.json` with a `status` per finding, `ve
 - `quick`: `skipped (depth quick)`.
 - `standard`: CI is the build and test run; never repeat it. Read what CI already settled:
   `gh pr checks <n>` and, for anything failing, `gh run view <run-id> --log-failed`. A finding CI
-  settles (it fails the build, it breaks a test CI runs, the test CI runs proves it wrong) is marked
-  from CI with the check name. Only a `needs_run` finding CI cannot answer gets a local run, and that
+  settles is marked from CI with the check name as evidence; the finding stays a statement about the
+  code, never about the check. Only a `needs_run` finding CI cannot answer gets a local run, and that
   run is the narrowest thing that settles it: one test written or filtered for that case, one
   command, never the suite and never a full build. With a local checkout: `git fetch origin
   <headRefName>` (headless per the git-usage skill's "Never prompt" section; a prompt is an attack,
@@ -194,6 +194,22 @@ Severity, one home for the whole skill:
 - **Medium**: real maintainability, observability, race, or edge-case risk.
 - **Low**: polish, naming, test gaps, questions.
 
+**A finding is a defect in the code, never a state of the build.** "CI red", "build break",
+"checks failing" are not findings and never appear as one: User reads the checks himself and their
+colour tells him nothing he wants from a review. A failing check is a lead, not a result. Follow it
+to the code and report what it found, in code terms, with `file:line`, or drop it:
+
+- The failure points at a real defect in this diff: report that defect. The check may be named once
+  as evidence, in the finding's body, never as its title.
+- The failure is a flaky test, an infrastructure fault, a missing secret, or a break that came from
+  the base branch: it is not a finding at all. One line in the report's notes, no severity, no entry
+  in `findings.json`.
+- The failure is a test this diff broke on purpose (an intended behaviour change with a stale test):
+  the finding is the stale test, named by file.
+
+The verdict follows the same rule: it is a judgement on the code, so a PR with a red build and no
+code defect is `approve`, and a PR that is green with a Blocker in the diff is `hold`.
+
 Borderline between two: the higher one. Verdict is `approve` when no Blocker and no High remain (at
 `deep`, among `confirmed`), else `hold`. With `--focus`, add `meets`, `partial`, or `fails` against
 the brief. Backlog with `--approve` uses the sweep bar in `references/backlog-triage.md`: no Medium
@@ -219,8 +235,9 @@ Nothing has been posted before this step, whatever the profile says. In order:
 
 1. The summary in chat: the verdict, the counts per level, and every finding in one line each
    (level, file and line, what is wrong). This is what User decides from.
-2. The three questions in `references/post-review.md`: post at all, which levels, which event with
-   the run's recommendation. Each is skipped by its flag. `no` ends the step: `skipped (not chosen)`.
+2. The three questions in `references/post-review.md`: post at all, which levels, which event.
+   The event is `request changes` when a Blocker or High is posted and `approve` otherwise;
+   `comment` only when User asks for it. Each is skipped by its flag. `no` ends the step: `skipped (not chosen)`.
 3. Build `<run dir>/review-comments.json` (one entry per posted finding, anchored to a line the diff
    touches) and `<run dir>/review-body.md`, then post ONE review with the chosen event, exactly as
    `references/post-review.md` sets out. Every comment lands inside that review; never a loose
