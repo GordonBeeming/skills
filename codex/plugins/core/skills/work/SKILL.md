@@ -53,6 +53,7 @@ calls is not a workstream. If one teammate can own the whole track, use one.
 - `--closing auto|review|skip`. What happens to the closing comment on linked issues after the merge.
 - `--evidence none|screenshots|video`. Screenshots or video means before and after captures of every affected screen or flow go into the PR.
 - `--cap 2h|4h|8h|none`. The build-phase wall clock. `none` is no cap.
+- `--codex-model sol|astra|luna|mixed`. The Codex target; `mixed` is sol with luna for pure coding.
 - Everything else on the command line is the source.
 
 ## Step 0: the menu
@@ -84,6 +85,13 @@ available, directly otherwise). Drop a question when its flag is already on the 
    whether anything is unknown. Skipped by `--cap 2h|4h|8h|none`. The answer is written to
    `run.json.caps.wallClock` (`unlimited` writes `"none"`), and it covers build time only: the
    clock stops at step 9 and never runs while a gate waits for User.
+
+6. "Codex model?" asked only when `Codex agents` is in the pool, skipped by `--codex-model`:
+   `sol for all, luna for pure coding` (recommended: `gpt-6.1-sol` for research, planning, review and
+   anything with judgement in it; `gpt-6-luna` for a row that is coding to a spec that already pins
+   it down), `sol for all`, `astra for all`, `luna for all`. The answer goes to
+   `run.json.workers.codexModel` and each Codex row's `--model` follows it. Always the latest id in
+   each family: today `gpt-6.1-sol`, `gpt-6-luna`, `gpt-6-astra`.
 
 No user to answer (a routine, `codex exec`, or a teammate session) and a flag missing: stop with one
 line, `$work: pass --mode and --workers when nobody can answer the menu`. An unattended run whose

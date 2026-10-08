@@ -33,7 +33,7 @@ agy-run.sh   --mode <review|build> --model <model> --repo <dir> --prompt <file> 
 `codex-run.sh` writes `<out>` and `<out>.jsonl` (the raw Codex event stream):
 
 ```json
-{ "tool": "codex", "mode": "review", "model": "gpt-6-astra", "sandbox": "read-only", "repo": "...",
+{ "tool": "codex", "mode": "review", "model": "gpt-6.1-sol", "sandbox": "read-only", "repo": "...",
   "threadId": "...", "status": "completed|failed|timeout", "response": "...", "exitCode": "0",
   "startedAt": "...", "endedAt": "...", "eventsFile": "...", "stderrTail": "" }
 ```
@@ -55,8 +55,8 @@ A teammate row with `kind: codex` or `kind: agy` in `run.json`'s `workers.compos
 
 ## Models
 
-Codex accepts any id from `codex models` or the profile. **Build rows run `gpt-5.6-luna`, review
-rows run `gpt-6-astra`.** The strong model plans and reviews, the cheap one builds to a spec that
-already pins the work down; a build row on anything above luna carries a `Justification:` line the
-same way a Claude row above Sonnet does. A build whose spec is thin is a spec problem, not a model
-problem: tighten the spec before reaching for astra. Antigravity, from `agy models`: `gemini-3.8-flash-{low,medium,high}`, `gemini-3.1-pro-{low,high}`, `claude-sonnet-4-6`, `claude-opus-4-6-thinking`, `gpt-oss-120b-medium`. Default review model is `gemini-3.1-pro-low`; default cheap build track is `gemini-3.8-flash-low`.
+Codex accepts any id from `codex models` or the profile. **The target is `gpt-6.1-sol` for all
+work; `gpt-6-luna` for a row that is pure coding to a spec; `gpt-6-astra` when the run chose it.**
+The run's choice lives in `run.json.workers.codexModel` (step 0 asks it). Always the latest id in
+each family. The strong model plans and reviews; a cheaper one builds only when the spec pins the
+work down, and a thin spec is a spec problem, not a model problem.

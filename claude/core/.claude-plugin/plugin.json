@@ -1,7 +1,7 @@
 {
   "name": "core",
   "description": "Gordon's always-on workflow set: /work (plan, build, verify, PR with an autonomy dial), /review (PR and branch review with a depth dial), /skill-fix, the azure context skill, envlock, cross-agent runners for Codex and Antigravity, and the hooks that enforce them.",
-  "version": "0.1.77",
+  "version": "0.1.78",
   "author": {
     "name": "Gordon Beeming",
     "url": "https://github.com/GordonBeeming"
