@@ -31,7 +31,7 @@ demands an issue.
 | Wait for one bot round | 30 min | treat the round as done; what came in is worked, the rest is the next round |
 | Any single wait | 5 min | the `run-guard` hook denies `sleep` over 300 s; check now or record the step as blocked |
 | Quiet | 45 min without a `run.json` update | the hook denies the next build command until the step status is written |
-| Wall clock, build phase | chosen at step 0 (`2h`, `4h`, `8h`, or none), `4h` when unattended | the hook allows only git, gh, and read-only commands: commit, push, open the PR, mark remaining steps `skipped (cap)`, write the report. The clock stops once step 9 has a `startedAt`, and never counts time a gate spends waiting for User |
+| Wall clock, build phase | chosen at step 0 (`2h`, `4h`, `8h`, or none), none when unattended and no `--cap` | the hook allows only git, gh, and read-only commands: commit, push, open the PR, mark remaining steps `skipped (cap)`, write the report. The clock stops once step 9 has a `startedAt`, and never counts time a gate spends waiting for User |
 
 The last three are enforced by `scripts/run-guard.sh` (a PreToolUse hook), not by memory. The run
 is found from cwd and `run.json.worktree`, so `run.json` must be real: `startedAt` is the actual UTC

@@ -37,7 +37,8 @@ in first person, never naming him or any agent. Rule and examples: `references/p
 
 - Profile via `${PLUGIN_ROOT}/scripts/profile.sh`. Run dir
   `${CODEX_HOME:-$HOME/.codex}/runs/<yyyymmdd>-pr-<branch>/` with `run.json` (steps:
-  menu, state, commit, create, rounds, publish, merge, close, report).
+  menu, state, commit, create, rounds, publish, merge, close, report) and
+  `caps.wallClock: "none"`, or the `--cap` value when User gave one.
 - `git rev-parse --abbrev-ref HEAD` must not be the default branch; if it is, stop with one line
   (branch first, or run from the worktree the work was built in).
 - `git status --porcelain` lists what will be committed. Nothing to commit and no unpushed
@@ -61,4 +62,6 @@ URL. Nothing else.
 
 ## Caps
 
-One request per bot, wall clock 1h, then stop and report.
+One request per bot, three bot rounds. No time cap: waiting on checks or a reviewer is a
+`pr-watch.sh` wait, never a reason to stop, and the run ends at merge (or at publish with
+`--no-merge`). A time limit applies only when User gives one on the command (`--cap 2h`).

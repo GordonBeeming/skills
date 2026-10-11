@@ -8,7 +8,7 @@ Generated from `run.json`. Every run ends with this, including runs that stopped
 {
   "skill": "work", "version": 1,
   "startedAt": "2026-09-09T08:00:00Z", "endedAt": "",
-  "caps": { "wallClock": "4h", "pausedAt": null, "pausedSeconds": 0 },
+  "caps": { "wallClock": "none", "pausedAt": null, "pausedSeconds": 0 },
   "source": "https://github.com/org/repo/issues/123",
   "profile": "example-org",
   "worktree": "/path/to/repo/.claude/worktrees/123-shuffle-stages",

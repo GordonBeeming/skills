@@ -34,8 +34,8 @@ agy-run.sh    --mode <review|build> --model <model> --repo <dir> --prompt <file>
   `--permission-mode acceptEdits`. It never passes `bypassPermissions`, the Claude-side analogue of
   `--yolo`, and just as off-limits from this script.
 - Model is always explicit on the command line, never left to a config default.
-- `--timeout` defaults to 10m; both scripts kill the run and report `status: "timeout"` if it runs
-  over.
+- `--timeout` defaults to none. Pass one only when User gave the run a time cap; then the script
+  kills the run past it and reports `status: "timeout"`.
 - Exit code is 0 only when `status` is `"completed"`, non-zero on `failed` or `timeout`, so a caller
   can branch on the exit code alone without parsing JSON first.
 - `--repo` is required on every call, resume included: neither `claude` nor `agy` takes a `-C`-style

@@ -2,7 +2,7 @@
 name: review
 description: >
   Review code at a chosen depth, report the findings first, and post back only what User then chooses. Explicit slash only: runs when
-  User types `$review [target] [--depth quick|standard|deep] [--post <levels>] [--event ...]`. Target
+  User types `$review [target] [--depth quick|standard|deep] [--post <levels>] [--event ...] [--cap <time>]`. Target
   is a PR URL or number, a branch name, nothing (the current branch against the default branch),
   `backlog`, or `dependabot`. Not for fixing review comments on my own PR (use $work), not for
   judging a screen or its UX, never merges anything, and never triggered by a bare URL or a pasted
@@ -25,8 +25,8 @@ Each step names its input and output.
 | Panel experts | 5 | fixed roster in `references/panel.md`, never more |
 | Verification passes | 1 | no second pass; unverified findings stay `unverified` |
 | Concurrent reviewers (backlog) | 5 | queue the rest |
-| Runner timeout (claude, agy) | 10m | mark that pass `failed (timeout)`, carry on |
-| Wall clock | 1h | stop, mark remaining steps `skipped (cap)`, write the report |
+| Runner timeout (claude, agy) | none, unless `--cap` was given (the runner gets what is left of it) | mark that pass `failed (timeout)`, carry on |
+| Wall clock | none, unless User passes `--cap <time>` | stop, mark remaining steps `skipped (cap)`, write the report |
 
 Delegate only at `deep` (the panel) and for a backlog of five or more PRs. One PR at `quick` or
 `standard` is the lead's own read. No subagent ever double-checks the lead.
@@ -144,7 +144,7 @@ matters; step 5 ranks. Read the base-branch code around a hunk before calling it
   `"coveredBy": "lead"`. The report names which seats reported.
 - `--reviewer`: write `runner/<name>.prompt.md` (generalist brief from `references/panel.md`), then
   `${PLUGIN_ROOT}/scripts/claude-run.sh --mode review --model <m> --repo <repo> --prompt <that file>
-  --out runner/<name>.json --timeout 10m` (or `agy-run.sh`). Extract the findings array from the
+  --out runner/<name>.json` (or `agy-run.sh`). Extract the findings array from the
   report's response.
 - `backlog`: batches from `triage.json`, one pass per PR at the chosen depth. Under five PRs the lead
   reads them in sequence; five or more, one `spawn_agent` per PR, model `gpt-5.6-sol`, five at a time.

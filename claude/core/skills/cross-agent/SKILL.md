@@ -24,7 +24,8 @@ agy-run.sh   --mode <review|build> --model <model> --repo <dir> --prompt <file> 
 
 - `--mode review` is read-only/sandboxed. `--mode build` is workspace-write, still headless-approved, never an interactive escalation. Use `review` for anything that only reads and reports; `build` only when the task is authorized to write in `--repo`.
 - Model is always explicit on the command line, never left to a config default.
-- `--timeout` defaults to 10m; both scripts kill the run and report `status: "timeout"` if it runs over.
+- `--timeout` defaults to none. Pass one only when User gave the run a time cap; then the script
+  kills the run past it and reports `status: "timeout"`.
 - Exit code is 0 only when `status` is `"completed"`, non-zero on `failed` or `timeout`, so a caller can branch on the exit code alone without parsing JSON first.
 - `--repo` is required on every call, resume included: `codex exec resume` has no `-C` flag, so `codex-run.sh` runs the resume from inside `--repo`.
 
