@@ -62,12 +62,18 @@ One line, from a fixed pattern. No examples to imitate, no other prose.
 - Nothing is posted: **approve**, body `Approving.`
 
 Leave out any level with a count of zero. Say "Blockers" in place of "Highs" when the worst posted
-finding is a Blocker. Nothing else goes in the body: no process narration, no ranking, no caveats.
+finding is a Blocker, and "Mediums" when a caller requests changes on a Medium with no High. Nothing else goes in the body: no process narration, no ranking, no caveats.
 The inline comments carry the detail.
 
 Inline comments: say what is wrong and what to do, in a sentence, the way you would say it at
 someone's desk. No severity label in the text, no restating the code back at the author. A
 suggestion block instead of describing the edit, when the fix is small.
+
+## Enforced
+
+The `review-post-guard` hook checks every `gh pr review` and every POST to `pulls/<n>/reviews`
+against this file: event, first line, counts against inline comments, no narration or footer. A
+refused post means the payload is wrong. Rebuild it; never post another way.
 
 ## Failures
 
