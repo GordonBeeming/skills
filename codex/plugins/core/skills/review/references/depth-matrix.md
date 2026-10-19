@@ -99,6 +99,7 @@ Shape from the shared v1 contract, with `mode` carrying the review switches.
       "expert": "security|bugs|sre|conventions|tests|lead|claude|agy",
       "title": "SQL query built by string concatenation with request input",
       "severity": "Blocker|High|Medium|Low",
+      "data_integrity": false,
       "confidence": 70,
       "file": "src/Api/Handlers/SearchHandler.cs",
       "line": 42,

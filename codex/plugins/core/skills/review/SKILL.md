@@ -191,7 +191,8 @@ Severity, one home for the whole skill:
 
 - **Blocker**: likely user-facing breakage, security hole, data loss, or a direct failure of the brief.
 - **High**: plausible production bug, or a required validation that is missing.
-- **Medium**: real maintainability, observability, race, or edge-case risk.
+- **Medium**: real maintainability, observability, race, or edge-case risk. A Medium that can
+  corrupt, lose, or silently mis-write persisted data also gets `data_integrity: true`.
 - **Low**: polish, naming, test gaps, questions.
 
 **A finding is a defect in the code, never a state of the build.** "CI red", "build break",
@@ -210,10 +211,9 @@ to the code and report what it found, in code terms, with `file:line`, or drop i
 The verdict follows the same rule: it is a judgement on the code, so a PR with a red build and no
 code defect is `approve`, and a PR that is green with a Blocker in the diff is `hold`.
 
-Borderline between two: the higher one. Verdict is `approve` when no Blocker and no High remain (at
+Borderline between two: the higher one. Verdict is `approve` when the bar in `references/post-review.md` says approve (at
 `deep`, among `confirmed`), else `hold`. With `--focus`, add `meets`, `partial`, or `fails` against
-the brief. Backlog with `--approve` uses the sweep bar in `references/backlog-triage.md`: no Medium
-either. `--blind` has no verdict.
+the brief. Backlog with `--approve` uses the same bar. `--blind` has no verdict.
 
 In chat: `quick` prints the verdict and Blockers only; `standard` and `deep` print the verdict,
 counts per severity, and the top findings with `file:line`.

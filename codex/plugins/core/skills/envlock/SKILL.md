@@ -14,14 +14,14 @@ explicit call, not a background guard.
 ## Commands
 
 ```
-"${PLUGIN_ROOT}/scripts/envlock.sh" acquire <name> [--wait <dur>] [--worktree <path>] [--session <id>]
+"${PLUGIN_ROOT}/scripts/envlock.sh" acquire <name> [--wait [<dur>]] [--worktree <path>] [--session <id>]
 "${PLUGIN_ROOT}/scripts/envlock.sh" release <name> [--session <id>]
 "${PLUGIN_ROOT}/scripts/envlock.sh" status  [<name>] [--json]
 "${PLUGIN_ROOT}/scripts/envlock.sh" steal   <name> [--worktree <path>] [--session <id>]
 ```
 
 `<name>` is a profile's `env.lock` value (e.g. `myapp`). `<dur>` is seconds, or a number with an
-`s`/`m`/`h` suffix (`5m`, `60s`, `1h`). `--wait` blocks and polls every 5 seconds until the lock frees
+`s`/`m`/`h` suffix (`5m`, `60s`, `1h`); bare `--wait` means `10m`. `--wait` blocks and polls every 5 seconds until the lock frees
 or the duration runs out. The lock is machine-wide and harness-agnostic: a Claude session and a Codex
 session contend for the same lock file, so whichever launched first blocks the other regardless of
 which CLI it's running.

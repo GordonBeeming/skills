@@ -82,7 +82,7 @@ Check state is not a gate for review: branch protection enforces checks on its o
 pipeline is no reason to leave a small PR unread. It would be a gate for merging, which this skill
 never does.
 
-Approve only on no Blocker, no High, and no Medium. Lows go in the body. Body: two or three
+Approve when the bar in `post-review.md` says approve. Its Mediums and Lows go in the body. Body: two or three
 sentences on what was verified (not a summary of the PR), the Lows, then the footer line
 `Posted by $review backlog`. Anything held: post nothing, and the report says why in one line.
 

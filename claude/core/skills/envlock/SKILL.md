@@ -12,14 +12,14 @@ keeps two worktrees from fighting over the same environment. A `PreToolUse` hook
 ## Commands
 
 ```
-envlock acquire <name> [--wait <dur>] [--worktree <path>] [--session <id>]
+envlock acquire <name> [--wait [<dur>]] [--worktree <path>] [--session <id>]
 envlock release <name> [--session <id>]
 envlock status  [<name>] [--json]
 envlock steal   <name> [--worktree <path>] [--session <id>]
 ```
 
 `<name>` is a profile's `env.lock` value (e.g. `myapp`). `<dur>` is seconds, or a number with an
-`s`/`m`/`h` suffix (`5m`, `60s`, `1h`). `--wait` blocks and polls every 5 seconds until the lock frees
+`s`/`m`/`h` suffix (`5m`, `60s`, `1h`); bare `--wait` means `10m`. `--wait` blocks and polls every 5 seconds until the lock frees
 or the duration runs out.
 
 ## How /work uses it

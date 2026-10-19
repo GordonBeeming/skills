@@ -6,6 +6,18 @@ review carries every comment, the way a human clicks Start a review, comments on
 finishes with Approve, Comment, or Request changes. Never loose comments posted one at a time, and
 never a PR-level comment where a line comment belongs.
 
+## The bar
+
+One rule decides the event, for `$review` and the approve sweep alike:
+
+- **Request changes** when any Blocker or High is posted, when three or more Mediums are posted, or
+  when any posted Medium affects data integrity (`data_integrity: true` in `findings.json`: it can
+  corrupt, lose, or silently mis-write persisted data).
+- **Approve** otherwise: at most two Mediums, none on data integrity, plus any number of Lows.
+
+Approving with findings attached is not a clean review. Only an approval with zero findings counts
+as clean, and only a clean review may be auto-merged by anything that merges.
+
 ## The three questions, after the summary
 
 Asked one at a time, each skipped when its flag is on the command. Never asked before the summary.
@@ -15,13 +27,11 @@ Asked one at a time, each skipped when its flag is on the command. Never asked b
    example `Blocker (0)`, `High (1)`, `Medium (5)`, `Low (3)`. Defaults ticked: everything at Medium
    and above. Unticked levels stay in the chat summary and the artifact, and never reach GitHub.
    Flag: `--post high,medium`.
-3. "Which review event?" The pattern decides it, and the question only confirms:
-   - a Blocker or High is being posted: `request changes`
-   - only Medium or Low, or nothing: `approve`
-   - `comment` only when User asks for it.
+3. "Which review event?" The bar above decides it over the ticked findings, and the question only
+   confirms. `comment` only when User asks for it.
 
-User's answer wins over any recommendation. `approve` with a Blocker or High ticked is allowed
-only after one confirming question naming the finding.
+User's answer wins over any recommendation. `approve` against the bar is allowed only after one
+confirming question naming the finding or the Medium count.
 
 ## The payload
 
@@ -55,14 +65,14 @@ gh api repos/<o>/<r>/pulls/<n>/reviews --input <run dir>/review-post.json --jq '
 
 One line, from a fixed pattern. No examples to imitate, no other prose.
 
-- A Blocker or High is posted: **request changes**.
+- The bar says request changes: **request changes**.
   `Requesting changes: <n> High, <n> Medium, <n> Low. Once the Highs are fixed, happy for someone else to approve.`
-- Only Medium or Low is posted: **approve**.
+- The bar says approve and findings are posted (at most two Mediums): **approve**.
   `Approving: <n> Medium, <n> Low. They can be fixed after, no need to hold this.`
 - Nothing is posted: **approve**, body `Approving.`
 
 Leave out any level with a count of zero. Say "Blockers" in place of "Highs" when the worst posted
-finding is a Blocker, and "Mediums" when a caller requests changes on a Medium with no High. Nothing else goes in the body: no process narration, no ranking, no caveats.
+finding is a Blocker, and "Mediums" when changes are requested on Mediums with no High. Nothing else goes in the body: no process narration, no ranking, no caveats.
 The inline comments carry the detail.
 
 Inline comments: say what is wrong and what to do, in a sentence, the way you would say it at
