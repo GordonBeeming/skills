@@ -47,8 +47,9 @@ Three to six lines, plain, no headings, written as User. `{{merge_sha}}` is fill
 
 - The run merges the PR itself (direct merge, or auto-merge that lands while the run is polling):
   post each draft with `gh issue comment <n> --repo <o>/<r> --body-file <run dir>/closing-<n>.md`
-  after replacing `{{merge_sha}}`, append the marker `<!-- closing-comment pr=<pr-n> -->`, write the
-  comment URL to `<run dir>/closing-<n>.md.posted`, record it in `run.json.outputs.closingComments`,
+  after replacing `{{merge_sha}}`, append the marker `<!-- closing-comment pr=<pr-n> -->`, record the
+  comment URL in `run.json.outputs.closingComments` (no `.posted` file: the marker on the issue is
+  what stops a second post),
   and close the issue by hand if `close: yes` and it is still OPEN.
 - The run does not merge (`pr.autoMerge` false, or the session ends first): the drafts stay in the
   run dir and the done report says `closing drafted (posts on merge: <paths>)`. The

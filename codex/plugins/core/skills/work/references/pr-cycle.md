@@ -320,15 +320,16 @@ gh pr merge <n> --squash --delete-branch
 ```
 
   Never `--admin`, never a bypass. A rejection goes back to the rounds or to the report.
-- After a merge, wait for propagation, then sync the main checkout and drop the branch:
+- After a merge, wait for propagation so the report's merge commit is really on the default branch:
 
 ```bash
 merge_sha=$(gh pr view <n> --json mergeCommit --jq .mergeCommit.oid)
 for i in $(seq 1 20); do git fetch origin <default> -q; \
   git merge-base --is-ancestor "$merge_sha" origin/<default> && break; sleep 2; done
-git -C <main checkout> switch <default> && git -C <main checkout> pull --ff-only
 ```
 
+  Never touch the main checkout: no `switch`, no `pull`, no `git -C <main checkout>` of any kind.
+  It belongs to whoever is working there, and the next agent launch on the default branch pulls it.
   Test ancestry, never equality; another PR can land seconds later. Linked issues close by GitHub's
   own rule; `$work` posts no closing comment.
 - A bot review can finish after the merge. Read comments stamped after `mergedAt` once, verify anything
