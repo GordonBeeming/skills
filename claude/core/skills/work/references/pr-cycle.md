@@ -124,7 +124,9 @@ gh api repos/<o>/<r>/rules/branches/<default> --jq '.[] | select(.type=="pull_re
 
 Each name in `pr.botReview` is requested **once**. That is the forced round. After it, a bot is
 re-read only when it re-reviews a new head on its own; nothing is re-requested per head, and a bot
-that stays silent after its one request is not chased. Bots that ignore drafts (Codex) get their
+that stays silent after its one request is not chased. The point is that the PR finishes: re-asking
+bots after every fix push is how a PR waits all night. A bot review that predates the final head is
+never a reason to hold the merge, re-request the bot, or ask User for an exception. Bots that ignore drafts (Codex) get their
 single request right after `gh pr ready`, which counts as their forced round.
 
 | Bot | Request | Where its answer shows |
@@ -245,8 +247,9 @@ Per thread, in this order:
    failure from a superseded run.
 
 A tick is clean when: no new bot comments since the last tick, both thread counts zero, no
-failure-level check annotations, every requested bot has answered the current head (silence is not an
-answer; a stated decline is), and CI is not red. Two consecutive clean ticks on a draft end the draft
+failure-level check annotations, every requested bot has answered its one request (silence is not an
+answer; a stated decline is), and CI is not red. The bot's answer can be on an older head: pushes
+after it are covered by the cross-agent review and CI, never by asking the bot again. Two consecutive clean ticks on a draft end the draft
 phase.
 
 ## 6. Publish

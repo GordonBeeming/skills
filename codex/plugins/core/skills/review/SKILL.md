@@ -87,9 +87,9 @@ Input: the target, cwd. Output: `<run dir>/run.json`, `<run dir>/profile.json`.
   with no target: stop, `$review: on <default>; name a PR or branch`.
 - Default branch: `git symbolic-ref refs/remotes/origin/HEAD --short`, else `origin/main`, else
   `origin/master`, else stop with one line.
-- Profile: `${PLUGIN_ROOT}/scripts/profile.sh --dir <repo>` into `profile.json`. Exit 2 is an unknown
-  key; stop and print its output. Keys read here: `review.postComments`, `review.approve`,
-  `test.command`.
+- Profile: `bash ${PLUGIN_ROOT}/scripts/review-gather.sh profile --dir <repo> --out <run dir>`
+  writes `profile.json` (and creates the run dir). Exit 2 is an unknown key; stop and print its
+  output. Keys read here: `review.postComments`, `review.approve`, `test.command`.
 - Run dir: `${CODEX_HOME:-$HOME/.codex}/runs/<yyyymmdd>-review-<slug>/`, slug `pr-<n>`, the branch
   name, `backlog`, or `dependabot`. Write `run.json` in the shape in `references/depth-matrix.md`
   with every step `pending`. Update it at every step boundary.
@@ -100,19 +100,18 @@ Input: the target, cwd. Output: `<run dir>/run.json`, `<run dir>/profile.json`.
 Input: the resolved target. Output: `<run dir>/diff.patch`, `pr.json`, `threads.json`, `checks.txt`,
 `context.md`; for `backlog` and `dependabot`, `triage.json`.
 
-PR target:
+PR target, one command (it runs the `gh pr view`, `gh pr diff`, `gh pr checks`, and GraphQL
+`reviewThreads` calls; `--blind` limits it to the diff and file counts):
 
 ```bash
-gh pr view <n> --json number,title,author,url,baseRefName,headRefName,headRefOid,files,additions,deletions,isDraft,reviewDecision,mergeable,mergeStateStatus,labels,body > pr.json
-gh pr diff <n> > diff.patch
-gh pr checks <n> > checks.txt || true
-gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){repository(owner:$o,name:$r){pullRequest(number:$n){reviewThreads(first:100){nodes{isResolved isOutdated path line comments(first:20){nodes{author{login} body}}}}}}}' -F o=<owner> -F r=<repo> -F n=<n> > threads.json
+bash ${PLUGIN_ROOT}/scripts/review-gather.sh pr --repo <owner>/<repo> --pr <n> --out <run dir> [--blind]
 ```
 
-`gh pr view --json reviews` does not carry thread resolution; only GraphQL does. `--blind`: only
-`gh pr diff` (never `--patch`, it prepends commit messages) and `--json files,additions,deletions`.
-No title, body, labels, threads, checks, or commit messages, and if any are already in context from
-earlier in the session, say so in the report.
+Run it as written: an inline version with a quoted GraphQL query, a redirect after `&&`, or
+`$((...))` is refused in a worktree session as too complex to verify. Read a file range with the
+Read tool's offset and limit, not `sed -n` arithmetic. `--blind` never uses `gh pr diff --patch` (it
+prepends commit messages). Blind sees no title, body, labels, threads, checks, or commit messages;
+if any are already in context from earlier in the session, say so in the report.
 
 Branch target: `base=$(git merge-base HEAD <default>)`, then `git diff "$base"...HEAD` plus
 `git diff HEAD` for uncommitted work, both into `diff.patch`.

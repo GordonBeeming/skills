@@ -57,11 +57,13 @@ direct merge.
 
 ## Step 7: report
 
-Three summary lines, one line per step (`done`, `skipped (reason)`, `failed (reason)`), then the PR
-URL. Nothing else.
+Set `endedAt` and the top-level `status` in `run.json` first: the run guards treat a run without
+them as still open. Then three summary lines, one line per step (`done`, `skipped (reason)`, `failed
+(reason)`), then the PR URL. Nothing else.
 
 ## Caps
 
-One request per bot, three bot rounds. No time cap: waiting on checks or a reviewer is a
+One request per bot, three bot rounds. A bot review on an older head still counts; never re-request
+a bot to cover the final head, and never stop to ask User for one. No time cap: waiting on checks or a reviewer is a
 `pr-watch.sh` wait, never a reason to stop, and the run ends at merge (or at publish with
 `--no-merge`). A time limit applies only when User gives one on the command (`--cap 2h`).

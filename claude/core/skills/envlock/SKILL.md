@@ -30,6 +30,10 @@ or the duration runs out.
    `env.teardown` commands run first (stop containers, free the port/volume). Same worktree as last
    time skips teardown, so a warm database stays warm. A teardown failure aborts the acquire; no lock
    is taken and nothing gets torn down halfway.
+   Then, on every acquire, each port in `env.ports` is checked. An app from another worktree holding
+   one (a stack started with `aspire start` outlives its session, and no release stops it) has that
+   worktree's whole stack stopped, and the acquire says so. A port held by a process from no
+   worktree fails the acquire with exit 3, naming the pid; stop it yourself or ask User.
 3. `/work` releases the lock once its verification step ends, so a long build never blocks a queued
    run for longer than it has to.
 4. The `PreToolUse` hook denies any Bash command matching `env.launch` unless the calling session

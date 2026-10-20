@@ -6,10 +6,11 @@ description: Environment lock for shared dev resources (ports, database, contain
 # envlock
 
 Worktrees isolate code, not the dev database or fixed ports. `envlock` is the one-holder lock that
-keeps two worktrees, on either harness, from fighting over the same environment. Claude enforces it
-automatically with a `PreToolUse` hook; Codex has no equivalent hook here, so `$work` calls
-`envlock acquire` and `envlock release` explicitly around any launch, and this skill is that
-explicit call, not a background guard.
+keeps two worktrees, on either harness, from fighting over the same environment. Both harnesses
+enforce it with hooks: in Codex, `~/.codex/hooks.json` runs `envlock-guard.sh` before every shell
+command (a launch matching the profile's `env.launch` is denied unless this session holds the lock)
+and `envlock-release-all.sh` when a turn stops. The session id is `CODEX_THREAD_ID`, the same id the
+hooks receive. `$work` and this skill still acquire and release explicitly around a launch.
 
 ## Commands
 
@@ -34,11 +35,14 @@ which CLI it's running.
    `env.teardown` commands run first (stop containers, free the port/volume). Same worktree as last
    time skips teardown, so a warm database stays warm. A teardown failure aborts the acquire; no lock
    is taken and nothing gets torn down halfway.
+   Then, on every acquire, each port in `env.ports` is checked. An app from another worktree holding
+   one (a stack started with `aspire start` outlives its session, and no release stops it) has that
+   worktree's whole stack stopped, and the acquire says so. A port held by a process from no
+   worktree fails the acquire with exit 3, naming the pid; stop it yourself or ask User.
 3. `$work` releases the lock once its verification step ends, so a long build never blocks a queued
    run for longer than it has to.
-4. Nothing here auto-denies a launch command the way Claude's hook does, `$work` and this skill are
-   the enforcement. Run `envlock.sh status <name>` before any launch you're not sure is covered, and
-   don't run the launch command until `acquire` has returned.
+4. A launch denied by `envlock-guard` means acquire first, then run it again. Don't run the launch
+   command until `acquire` has returned.
 
 ## Manual use
 

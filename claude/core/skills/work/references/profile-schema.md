@@ -15,7 +15,7 @@ merged JSON, or one value with `--get`.
   "git":    { "system": "git", "branchPrefix": "gb/", "signCommits": true },
   "test":   { "command": "", "e2e": "none" },
   "azure":  { "default": "", "environments": {}, "prodGuard": "" },
-  "env":    { "lock": "", "launch": [], "teardown": [], "teardownTimeout": "60s", "portOffsetPerWorktree": false },
+  "env":    { "lock": "", "launch": [], "teardown": [], "teardownTimeout": "60s", "ports": [], "portOffsetPerWorktree": false },
   "scope":  { "never": [], "askFirst": [] },
   "evidence": { "driver": "claude", "viewports": ["1920x1080","390x844"], "devLogin": false, "loginDriver": "claude" },
   "wt":     { "pruneDays": 7 }
@@ -48,6 +48,9 @@ Enums: `review.postComments` and `review.approve` are `never`, `ask`, or `always
 - `env.launch`: command substrings the PreToolUse hook denies unless this session holds the lock.
 - `env.teardown`: commands envlock runs on handover to another worktree before granting the lock.
 - `env.teardownTimeout`: how long a teardown command may take before the acquire fails.
+- `env.ports`: the stack's app ports. On every acquire, a port held by an app from another worktree
+  has that worktree's whole stack stopped (every process whose command line names a path inside it);
+  a port held by a process from no worktree fails the acquire.
 - `env.portOffsetPerWorktree`: the app reads its ports from env, so each worktree gets an offset and
   skips the lock.
 - `scope.never`: path globs no /work teammate or lead edit may touch.
