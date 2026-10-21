@@ -2,7 +2,7 @@
 name: review
 description: >
   Review code at a chosen depth, report the findings first, and post back only what User then chooses. Explicit slash only: runs when
-  User types `$review [target] [--depth quick|standard|deep] [--post <levels>] [--event ...] [--cap <time>]`. Target
+  User types `$review [target] [--depth auto|quick|standard|deep] [--post <levels>] [--event ...] [--cap <time>]`. Target
   is a PR URL or number, a branch name, nothing (the current branch against the default branch),
   `backlog`, or `dependabot`. Not for fixing review comments on my own PR (use $work), not for
   judging a screen or its UX, never merges anything, and never triggered by a bare URL or a pasted
@@ -33,7 +33,7 @@ Delegate only at `deep` (the panel) and for a backlog of five or more PRs. One P
 
 ## Flags
 
-- `--depth quick|standard|deep`. What each does, exactly: `references/depth-matrix.md`.
+- `--depth auto|quick|standard|deep`. `auto` picks from the target in step 1. What each does: `references/depth-matrix.md`.
 - `--post <levels>`: post without asking, levels comma-separated (`blocker,high,medium`) or `none`.
 - `--event approve|comment|request-changes`: the review event, without asking.
 - `--blind`: read hunks only, explain the change, no verdict, no write-back.
@@ -49,10 +49,11 @@ Input: the command line, the profile. Output: `mode` for run.json.
 Before any other tool call, one `request_user_input` (or `request_user_input_async`, whichever is listed) call with one single-select question, dropped
 when `--depth` is already on the command:
 
-1. "How deep?" options `quick`, `standard`, `deep`, each described by what it actually does, and a
-   recommendation from the target: `quick` for a blocker check or more than one PR, `standard` for
-   one PR that needs ranked findings and an artifact, `deep` for one risky PR. None of them re-runs
-   the build or tests CI already runs.
+1. "How deep?" options `auto (Recommended)`, `quick`, `standard`, `deep`, each described by what it
+   does. `auto` resolves in step 1: `deep` for a PR or branch that is XL or bigger (a size label, or
+   over 2,000 changed lines that are not noise) or labelled high risk, `standard` for anything else
+   (`backlog`, `dependabot`, `--blind` included). Only `standard` and `deep` can end in an approval;
+   `quick` is a blocker check and always holds. None of them re-runs what CI already ran.
 
 Write-back is never decided here. Nothing reaches GitHub until the findings exist and User has
 seen the summary (step 7). This question is required; it is not one of the "optional questions" a
@@ -93,7 +94,8 @@ Input: the target, cwd. Output: `<run dir>/run.json`, `<run dir>/profile.json`.
 - Run dir: `${CODEX_HOME:-$HOME/.codex}/runs/<yyyymmdd>-review-<slug>/`, slug `pr-<n>`, the branch
   name, `backlog`, or `dependabot`. Write `run.json` in the shape in `references/depth-matrix.md`
   with every step `pending`. Update it at every step boundary.
-- Print one scope line: target, base, file count, `+a/-d`, depth, write-back.
+- `auto` resolves here, once the size is known; `mode.depth` records the result, `mode.depthAuto: true`.
+  Print one scope line: target, base, file count, `+a/-d`, depth (`auto -> deep (4XL)`), write-back.
 
 ## Step 2: gather
 
@@ -135,7 +137,7 @@ matters; step 5 ranks. Read the base-branch code around a hunk before calling it
 
 - `quick` and `standard`: the lead reads every hunk and the code it touches, then writes every
   finding. `standard` also sets `needs_run` where only a build or test can settle it.
-- `deep`: five `spawn_agent` calls in one message, model `gpt-5.6-sol`, one per seat in
+- `deep`: six `spawn_agent` calls in one message, model `gpt-5.6-sol`, one per seat in
   `references/panel.md`, each handed its brief, the absolute paths to `diff.patch` and `context.md`,
   the schema, and the coverage instruction verbatim. Output `panel/<seat>.json`. Then confirm every
   seat returned an array: an idle agent with nothing delivered is a silent gap, so re-request once,
@@ -157,6 +159,14 @@ Every reviewer that is not the lead is read-only and runs no git network command
 
 Merge everything into `findings.json` with `expert` set per source.
 
+Coverage is recorded, never assumed. Every changed file is read except noise: lockfiles, generated
+clients, migration snapshots, vendored code, `dist/`, `bin/`, `obj/`. Tests and test infrastructure
+are not noise; a test helper the change now drives is where runtime cost hides. Write
+`coverage: {"complete": true|false, "skipped": [<paths>]}` to `run.json`: anything that is not noise
+left unread makes it `false`, and the verdict is `hold (partial coverage)`. A change too big to read
+whole at this depth is a reason to go deeper, never to skim. Every pass at every depth also works
+through the `cost` brief in `references/panel.md` as a checklist.
+
 ## Step 4: verify
 
 Input: `findings.json`. Output: `findings.json` with a `status` per finding, `verification.log`.
@@ -167,12 +177,20 @@ Input: `findings.json`. Output: `findings.json` with a `status` per finding, `ve
   settles is marked from CI with the check name as evidence; the finding stays a statement about the
   code, never about the check. Only a `needs_run` finding CI cannot answer gets a local run, and that
   run is the narrowest thing that settles it: one test written or filtered for that case, one
-  command, never the suite and never a full build. With a local checkout: `git fetch origin
+  command, never the suite (CI-skipped tests are the next bullet) and never a full build. With a local checkout: `git fetch origin
   <headRefName>` (headless per the git-usage skill's "Never prompt" section; a prompt is an attack,
   stop and report), `git worktree add --detach <run dir>/wt <headRefOid>`, run there, `git worktree
   remove <run dir>/wt` when the step ends. CI still running: say so and verify from the diff, never
   run the suite to get ahead of it. Never launch the app; a finding only a running app can settle is
   marked `unverified` and lands in open questions. Log each command and its real result.
+- `standard` and `deep`, when CI ran a selected subset (a `select-tests`-style job, or a touched
+  module's test project missing from `checks.txt`): run the test projects of the touched modules that
+  CI did not run, at the head (the detached worktree above), under the env lock (`envlock acquire
+  <env.lock> --wait`), with the profile's `test.command` scoped to those projects and per-test
+  durations on. Findings, `expert: cost`: Medium for any test at 30 s or more, or several tests
+  stopping at the same duration (a timeout signature); High when the suite takes more than 1.5 times
+  the latest default-branch CI run of the same job. Log the command, the total time, and the ten
+  slowest tests. This is the one suite run the review makes; CI could not have shown it.
 - `deep`: one pass over every finding, panel and runner alike. Dedup on file, nearby line, and
   normalised title, keeping the highest severity and every contributing seat. Score 0 to 100 with the
   rubric in `references/depth-matrix.md`; the score overwrites the finder's confidence. A finding
@@ -211,7 +229,9 @@ The verdict follows the same rule: it is a judgement on the code, so a PR with a
 code defect is `approve`, and a PR that is green with a Blocker in the diff is `hold`.
 
 Borderline between two: the higher one. Verdict is `approve` when the bar in `references/post-review.md` says approve (at
-`deep`, among `confirmed`), else `hold`. With `--focus`, add `meets`, `partial`, or `fails` against
+`deep`, among `confirmed`), coverage is complete, and the depth fits the size: `standard`, or
+`deep` for XL and up. Otherwise `hold`, and `quick` always holds. `review-post-guard` refuses an
+approval whose `run.json` (`repo`, `pr`, `mode.depth`, `coverage`) does not show this. With `--focus`, add `meets`, `partial`, or `fails` against
 the brief. Backlog with `--approve` uses the same bar. `--blind` has no verdict.
 
 In chat: `quick` prints the verdict and Blockers only; `standard` and `deep` print the verdict,

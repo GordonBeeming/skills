@@ -1,6 +1,6 @@
 # The panel
 
-Five seats, fixed. Each is one `spawn_agent` call at `deep`, launched together in one message with
+Six seats, fixed. Each is one `spawn_agent` call at `deep`, launched together in one message with
 model `gpt-5.6-sol`. Severity definitions live in the spine (step 5); the finding schema in
 `references/depth-matrix.md`.
 
@@ -22,6 +22,7 @@ Every seat, every backlog reviewer, and every runner prompt carries this verbati
 | security | can untrusted input, a missing check, or an exposed secret let someone do something they should not? | dependency usage patterns |
 | sre | at 3am, can the on-call engineer see and stop this failure? | timeouts, retries, resource bounds |
 | conventions | does this match how this repo does things? | code hygiene, comment discipline, manifest hygiene |
+| cost | what does this cost every time it runs, in production and in the test suite? | background jobs and retries, waits, test doubles that block, N+1, unbounded growth |
 | tests | if this regresses next month, does a test fail? | |
 
 Accessibility and UX are not a seat; a UI change needs a separate, dedicated UX pass.
@@ -145,6 +146,29 @@ Severity: Blocker for a hard "never" or "always" rule broken, or a CI lint gate 
 High for a documented convention or strongly established pattern ignored; Medium for inconsistency
 with an obvious repeated idiom; Low for formatter-level nits.
 
+### cost
+
+What does this change cost every time it runs, in production and in the test suite? Trace each new
+path to where it runs and how often. Look for:
+
+- Background work: a new job, message, or event handler. When it fails, what happens: retries,
+  backoff delays, rescheduling. Then open the test double that runs it (a test job manager, fake
+  bus, in-memory queue) even if the diff does not touch it: does it block until the work completes,
+  with what timeout, and what does a job that retries or reschedules do to that wait? Work that never
+  reaches a final state in tests costs the full timeout in every test that triggers it.
+- Waits: sleeps, polling loops, timeouts, retry policies, and delays on a request path or in a test
+  fixture; any wait whose worst case has become the common case.
+- I/O in loops: N+1 queries, a call per item, missing batching or paging, a query filtering on a
+  column with no index.
+- Startup and per-request cost: work moved into startup, middleware, or a hot path; something heavy
+  resolved or built per request; large objects serialised on every call.
+- Unbounded growth: collections, caches, tables, or queues with no cap or retention.
+
+Do not flag missing logs (sre) or wrong results (bugs). Severity: High for a cost every request, or
+every test in a suite, pays (minutes added to a suite, a timeout hit on a common path); Medium for a
+cost on a secondary path, or a wait a handful of tests pay; Low for a micro-optimisation. State the
+estimate: how often it runs times what each run costs.
+
 ### tests
 
 Not the bug itself; the missing or weakened test that would have caught it. Look for:
@@ -166,7 +190,8 @@ Low for one weak assertion. State the specific test to add and what it asserts.
 
 `runner/<name>.prompt.md` is a generalist version of the seat prompt: the same header (paths,
 read-only, no git network commands), the coverage instruction, the schema, and this brief: "Review
-the diff from every angle: correctness, concurrency, data, security, observability, conventions in
+the diff from every angle: correctness, concurrency, data, security, observability, runtime cost (background jobs, retries,
+waits, test helpers that block), conventions in
 the repo's own rule files, and tests. End your reply with the JSON array and nothing after it."
 The runner report's response field carries the reply; the lead extracts the array. A report with no
 parseable array is `failed (no findings array)` for that pass, and the report names it.

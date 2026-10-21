@@ -15,6 +15,10 @@ One rule decides the event, for `$review` and the approve sweep alike:
   corrupt, lose, or silently mis-write persisted data).
 - **Approve** otherwise: at most two Mediums, none on data integrity, plus any number of Lows.
 
+An approval also needs a review that read the whole change at a depth that fits its size
+(`standard`, or `deep` for XL and up; never `quick`). `review-post-guard` refuses one whose
+`run.json` does not show that.
+
 Approving with findings attached is not a clean review. Only an approval with zero findings counts
 as clean, and only a clean review may be auto-merged by anything that merges.
 

@@ -9,16 +9,20 @@ What each depth does at each step, exactly. The spine names the steps; this file
 | 0 menu | same | same | same |
 | 1 resolve | same | same | same |
 | 2 gather | diff, PR state, threads, checks, context | same | same |
-| 3 review | lead reads every hunk, writes every finding | same, plus `needs_run` flags | five-seat panel in parallel, plus `--reviewer` runner pass; lead merges |
-| 4 verify | skipped (depth quick) | CI results first; a local run only for a `needs_run` finding CI cannot answer, and only the narrowest test for it | one verification pass: dedup, score, rule check, the same CI-first validation |
-| 5 rank | verdict, Blockers only in chat | verdict, counts, top findings in chat | same as standard, over `confirmed` findings |
+| 3 review | lead reads every hunk, records coverage, works the cost checklist, writes every finding | same, plus `needs_run` flags | six-seat panel in parallel, plus `--reviewer` runner pass; lead merges |
+| 4 verify | skipped (depth quick) | CI results first; a local run only for a `needs_run` finding CI cannot answer, and only the narrowest test for it; the affected tests CI skipped, timed | one verification pass: dedup, score, rule check, the same CI-first validation |
+| 5 rank | verdict (always hold), Blockers only in chat | verdict, counts, top findings in chat | same as standard, over `confirmed` findings |
 | 6 artifact | skipped (depth quick) | HTML artifact | HTML artifact with per-seat detail, verification log, filtered appendix |
 | 7 write-back | as chosen | as chosen | as chosen |
 | 8 fix plan | skipped (depth quick) | skipped (depth standard) | `fix-plan.md` for `$work` |
 | 9 report | from run.json | from run.json | from run.json |
 
 Cost: `quick` is one pass on the session model. `standard` is one pass, CI's own results, and at most a few narrow local runs; it never repeats the build or test suite CI already ran.
-`deep` is five `gpt-5.6-sol` agents, one optional runner, and the verification pass.
+`deep` is six `gpt-5.6-sol` agents, one optional runner, and the verification pass.
+
+`auto` is not a fourth depth. Step 1 resolves it to `deep` for a PR or branch that is XL or bigger
+(size label, or over 2,000 changed lines that are not noise) or labelled high risk, and to `standard`
+for everything else; the table above then applies to what it resolved to.
 
 ## Target by depth
 
@@ -29,7 +33,8 @@ Cost: `quick` is one pass on the session model. `standard` is one pass, CI's own
 | `backlog` | yes | yes | refused at step 0 | refused |
 | `dependabot` | yes | yes | refused at step 0 | refused |
 
-`backlog` at `quick` is triage plus one quick pass per PR and an approve or hold call in chat.
+`backlog` at `quick` is triage plus one quick pass per PR and a hold or escalate call in chat; a PR
+worth approving is re-run at `standard` (or `deep` for XL and up) first.
 `backlog` at `standard` adds targeted validation where a checkout exists and one artifact per batch.
 `dependabot` at `quick` is the classification table; `standard` also reads each diff for source
 changes beyond the manifest and lockfile and checks the advisory links in the PR body.
@@ -47,12 +52,16 @@ Shape from the shared v1 contract, with `mode` carrying the review switches.
   "version": 1,
   "startedAt": "", "endedAt": "",
   "source": "<pr url | branch | backlog | dependabot>",
+  "repo": "<owner/repo>", "pr": 0, "headRefOid": "",
+  "size": { "large": false },
+  "coverage": { "complete": false, "skipped": [] },
   "profile": "<org>",
   "worktree": "",
   "mode": {
     "gates": [],
     "chosenBy": "question|flag",
     "depth": "quick|standard|deep",
+    "depthAuto": false,
     "writeBack": "none|post|approve",
     "blind": false,
     "reviewer": "",
@@ -96,7 +105,7 @@ Shape from the shared v1 contract, with `mode` carrying the review switches.
   "findings": [
     {
       "id": "sec-001",
-      "expert": "security|bugs|sre|conventions|tests|lead|claude|agy",
+      "expert": "security|bugs|sre|cost|conventions|tests|lead|claude|agy",
       "title": "SQL query built by string concatenation with request input",
       "severity": "Blocker|High|Medium|Low",
       "data_integrity": false,
