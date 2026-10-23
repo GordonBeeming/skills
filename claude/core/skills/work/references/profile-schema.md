@@ -14,7 +14,7 @@ merged JSON, or one value with `--get`.
   "pr":     { "draft": true, "botReview": ["copilot"], "coAuthorTrailer": true, "autoMerge": false, "closingComment": "ask" },
   "git":    { "system": "git", "branchPrefix": "gb/", "signCommits": true },
   "test":   { "command": "", "e2e": "none" },
-  "azure":  { "default": "", "environments": {}, "prodGuard": "" },
+  "azure":  { "default": "", "environments": {}, "prodGuard": "", "named": {} },
   "env":    { "lock": "", "launch": [], "teardown": [], "teardownTimeout": "60s", "ports": [], "portOffsetPerWorktree": false },
   "scope":  { "never": [], "askFirst": [] },
   "evidence": { "driver": "claude", "viewports": ["1920x1080","390x844"], "devLogin": false, "loginDriver": "claude" },
@@ -44,6 +44,9 @@ Enums: `review.postComments` and `review.approve` are `never`, `ask`, or `always
 - `azure.default`: the environment name to use when none is stated.
 - `azure.environments`: environment name to `{ subscription, tenant }` map for the azure skill.
 - `azure.prodGuard`: a glob; any resource name matching it needs an explicit go before a write.
+- `azure.named`: name to `{ aliases, subscription, subscriptionId, tenant }` for subscriptions User
+  calls by name from any repo ("personal azure", "mvp azure"). Lives in `default.json`, so every org
+  profile inherits it; an org's `environments` never shadow it.
 - `env.lock`: the envlock name to acquire before launching the app; empty means no lock.
 - `env.launch`: command substrings the PreToolUse hook denies unless this session holds the lock.
 - `env.teardown`: commands envlock runs on handover to another worktree before granting the lock.

@@ -9,7 +9,9 @@ description: Set the right Azure subscription and tenant for the current repo be
 
 1. Resolve the profile: `"${PLUGIN_ROOT}/scripts/profile.sh" --get azure`. It returns `tenant`,
    `default`, `environments{name: {subscription, subscriptionId, ...}}`, and `prodGuard`.
-2. Pick the environment: the task's words (uat, staging, prod) win; otherwise `azure.default`. If the
+2. Pick the environment. A name or alias in `azure.named` ("personal azure", "mvp azure") wins outright,
+   whatever repo this is, and uses that entry's `subscriptionId` and `tenant`. Otherwise the task's words
+   (uat, staging, prod) pick from `environments`, else `azure.default`. If the
    profile has no `environments`, ask with one question listing what you'd need (subscription id,
    tenant) and stop until answered. Don't guess a subscription.
 3. Check and switch:
