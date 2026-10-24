@@ -33,7 +33,8 @@ Unattended with no flag: stop with one line, `/pr: pass --draft-only, --no-merge
 ## Step 1: start state
 
 Before creating the PR, every template field is asked to User in one question batch, the run's best
-answer as the first option, whatever the run thinks it already knows; the body is written as User
+answer as the first option, whatever the run thinks it already knows (`pr.templateQuestions: auto`,
+set on personal repos, skips the batch: see pr-cycle.md); the body is written as User
 in first person, never naming him or any agent. Rule and examples: `references/pr-cycle.md`,
 "Written as User, always".
 

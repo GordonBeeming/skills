@@ -66,5 +66,8 @@ Enums: `review.postComments` and `review.approve` are `never`, `ask`, or `always
 - `wt.pruneDays`: age after which a clean, unmerged Codex worktree is removed by the prune routine.
 - `evidence.driver`: who drives a demo take or evidence capture: `claude` (default; this session, with the `playwright-demo` MCP browser) or `codex` (the take is briefed and run through `take-run.sh`).
 - `evidence.viewports`: window sizes to capture, `WxH`, in order.
+- `pr.templateQuestions`: `ask` (default) asks User every template field before the PR is created;
+  `auto` (personal repos) asks nothing: fields the diff proves are filled from it, fields the run
+  cannot know get the empty answer in the template's words, and the answers file records `profile:auto`.
 - `pr.closingComment`: what happens to the closing comment on linked issues at merge time. `ask` (default) asks once; `auto` posts on merge without asking; `review` always shows the draft in plan mode first; `skip` never posts. A `--closing` flag on the command overrides the profile.
 - `evidence.devLogin`: true means the repo's seeded dev credentials (documented in its navigate-* skill, CLAUDE.local.md, or README) are test data and the driver types them itself to reach a screen. false means stop and ask User for credentials, then continue; never ask him to sign in for you.

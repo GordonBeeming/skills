@@ -58,6 +58,11 @@ his voice, first person. So:
   assumptions. If no question tool is listed this turn, print the questions and end the turn; never
   create or edit the PR body without the answers. Only what the diff proves (what changed, how it
   was tested, the linked issue) may be pre-filled, and even that is in the batch for a yes or edit.
+- `pr.templateQuestions: auto` in the profile (personal repos) means no batch and no question in
+  chat: fill what the diff and the run prove (what changed, how it was tested, the linked issue),
+  give every field the run cannot know (who reviewed, who paired, what triggered it) the empty
+  answer in the template's own words, write the answers file with `"askedWith":"profile:auto"`,
+  and create the PR. Never stop to confirm wording; the body is the run's to write.
 - The questions come before the body is drafted, not after. Never write a draft that answers them
   and never describe one in chat ("Q2 names you as plan reviewer"): a summary carrying answers
   User has not given reads as though he gave them. Draft only the sections the diff proves, ask,
