@@ -1,82 +1,54 @@
 ---
 name: github-upload-file
 description: >
-  Upload a local image or file to GitHub from the CLI so it can be embedded in an
-  issue, PR body, or comment. Use when a bug report or PR needs a screenshot or
-  attachment and the content was created locally (gh has no attachments API).
-  Works via a dedicated "assets" release on the target repo.
+  Put a local image or video into a GitHub issue, PR body, or comment from the CLI with
+  `gh --attach`. Use when a bug report, PR, or comment needs a screenshot, a before/after pair, or
+  a recording that was made locally. Never ask User to drag files in and never upload through a
+  browser. Not for non-media files (logs, PDFs): see `references/release-bucket.md`.
 ---
 
-# Upload image/file to GitHub
+# Attach image/file to GitHub
 
-`gh issue create` and `gh pr create` can't attach images — GitHub's drag-and-drop
-attachment endpoint has no public API. The reliable CLI path is a dedicated
-release that acts as an asset bucket: upload the file as a release asset, embed
-the download URL.
+`gh` attaches images and videos itself (gh 2.99 and later): `--attach <path>` on `gh issue create`,
+`gh issue edit`, `gh issue comment`, `gh pr create`, `gh pr edit`, and `gh pr comment`. The file is
+uploaded to GitHub's own attachment store, the same place a drag-and-drop lands, and needs push
+access to the repo. Every image gathered for the issue or PR is attached, unless User says to
+leave one out; the ones that look redundant while writing are the ones that settle a question later.
 
-**Every image gathered for the issue or PR gets uploaded**, unless User says to
-leave one out. Don't narrow the set to whichever screenshot seems most telling —
-the ones that look redundant while writing are often the ones that settle a
-question later.
+## Placing the image
 
-## One-time repo setup
+Reference the file in the body first, then attach it; `gh` rewrites the reference in place to the
+uploaded URL. Paths in the body and on the flag are absolute, so the worktree check and the body's
+location never matter:
 
-Check whether the repo already has the bucket:
+```markdown
+| Before | After |
+|---|---|
+| ![before: fund list](/Users/user/.claude/runs/<run>/evidence/before-fund-list.png) | ![after: fund list](/Users/user/.claude/runs/<run>/evidence/after-fund-list.png) |
+```
 
 ```bash
-gh release view assets --repo <owner>/<repo>
+gh pr create --base main --head <branch> --title "<title>" --body-file <abs>/pr-body.md --draft \
+  --attach /Users/user/.claude/runs/<run>/evidence/before-fund-list.png \
+  --attach /Users/user/.claude/runs/<run>/evidence/after-fund-list.png
 ```
 
-If it doesn't exist, create it — **check the workflows first**:
+Rules the flag enforces:
 
-1. `grep -rn "release" .github/workflows/*.yml` — if any workflow triggers on
-   `release: types: [published]`, publishing the bucket will fire it **once**.
-   Usually that's one wasted/red run and never again (asset uploads don't fire
-   release events). Mention it to User; on repos where a release run has real
-   side effects (deploys, notarization), get a nod before publishing.
-2. Create it as a published prerelease. A draft won't work — draft assets aren't
-   publicly downloadable, so images embedded from one render broken for everyone
-   else.
+- One `--attach` per file; the same file cannot be attached twice. A file the body does not
+  reference is appended at the end in flag order, so reference every file you want placed.
+- Alt text: from the markdown when the body references the file; otherwise
+  `--attach '<path>#<alt text>'`, else the file name. Video takes no alt text.
+- A video plays inline only when `![](<path>)` is the whole paragraph; inside a sentence it renders
+  as a link. Put a still (a one-frame poster) beside it when the viewer should see something
+  without pressing play.
+- `gh pr edit <n> --attach <path>` with no body flag keeps the body and appends the file; with
+  `--body-file` it rewrites the references like `create` does.
+- Supported: PNG, JPEG, GIF, WebP, SVG, MP4, MOV, WebM. Anything else (a log, a PDF, a zip) is not
+  an attachment; `references/release-bucket.md` has the release-asset fallback for those.
 
-```bash
-gh release create assets --repo <owner>/<repo> --target main --prerelease \
-  --title "Issue attachments (not a product release)" \
-  --notes "Asset bucket for images embedded in issues and PRs. Upload with: gh release upload assets <file>. Not an app release — ignore."
-```
+## Check
 
-## Upload and embed
-
-```bash
-gh release upload assets <file.png> --repo <owner>/<repo>
-```
-
-The public URL is:
-
-```
-https://github.com/<owner>/<repo>/releases/download/assets/<file.png>
-```
-
-Embed it with normal markdown: `![alt text](<url>)`. Verify before posting, via
-`gh` rather than the URL:
-
-```bash
-gh release view assets --repo <owner>/<repo> --json assets -q '.assets[].name' | grep -Fxq -- "<file>"
-```
-
-On a **private** repo an unauthenticated `curl -sIL <url>` returns 404 for an
-asset that uploaded fine and embeds fine, so a curl check reports a failure that
-isn't there. The `gh` listing is authenticated and works either way.
-
-## Gotchas
-
-- Asset names must be unique within the release; give files descriptive names
-  (`jsonc-comment-highlighting.png`, not `screenshot.png`). `--clobber` replaces
-  an existing asset of the same name.
-- Private repos: the URL needs repo access, which is fine for embedding in that
-  repo's own issues (viewers have access by definition) but the link won't work
-  outside it.
-- Never delete or repurpose the `assets` release once URLs point at it, and
-  never use a product version tag (like `v0.7`) as the bucket.
-- Don't reach for a git branch as the bucket instead — a branch shows up in
-  clones/branch lists and someone will eventually delete it, killing the URLs
-  (that exact thing happened the first time this was tried).
+`gh pr view <n> --json body --jq .body | grep -c 'user-attachments'` equals the number of files
+attached. A body that still contains a local path means that file was not attached; run
+`gh pr edit <n> --body-file <abs>/pr-body.md --attach <path>` for the missing one.

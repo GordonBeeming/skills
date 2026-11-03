@@ -9,7 +9,8 @@ description: Decide when a /work or /review teammate row should be Codex or Anti
 
 - **Claude** (team or agent teammate): default for anything needing this session's tools, MCP servers, or judgement calls mid-run.
 - **Codex** (`codex-run.sh`): a second opinion on a Claude-built diff, or a self-contained build track with a clear spec that benefits from a different model's blind spots.
-- **Antigravity** (`agy-run.sh`): a cheap parallel track (`gemini-3.8-flash-low`) or a Gemini/Claude-model review pass. Headless only, no interactive escalation.
+- **Antigravity** (`agy-run.sh`): a build track or a review pass on `gemini-4-argon-medium` (the default
+  for every Antigravity row; `gemini-3.8-flash-low` only when the plan row says cheap, mechanical work) or a Gemini/Claude-model review pass. Headless only, no interactive escalation.
 
 A diff one agent builds gets reviewed by a different one: Codex builds, Claude or Antigravity reviews; Claude builds, Codex or Antigravity reviews. An agent never reviews its own build.
 
@@ -42,7 +43,7 @@ agy-run.sh   --mode <review|build> --model <model> --repo <dir> --prompt <file> 
 `agy-run.sh` writes `<out>` and `<out>.raw.json` (agy's unmodified `--output-format json` payload):
 
 ```json
-{ "tool": "agy", "mode": "review", "model": "gemini-3.1-pro-low", "repo": "...",
+{ "tool": "agy", "mode": "review", "model": "gemini-4-argon-medium", "repo": "...",
   "conversationId": "...", "status": "completed|failed|timeout", "agyStatus": "SUCCESS",
   "response": "...", "deniedActions": [], "exitCode": "0", "startedAt": "...", "endedAt": "...",
   "rawFile": "...", "stderrTail": "" }

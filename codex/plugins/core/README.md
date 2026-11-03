@@ -12,7 +12,6 @@ codex plugin add core@gordon-codex-skills
 
 ## Skills
 
-- **work** — Plan, build, verify, and open a PR for a piece of work, with an autonomy dial that says which
 - **review** — Review code at a chosen depth, report the findings first, and post back only what User then chooses. Explicit slash only: runs when
 - **pr** — Take the current worktree's changes to a pull request and, if asked, through to merge: commit,
 - **azure** — Set the right Azure subscription and tenant for the current repo before any az or Azure MCP call, and run App Insights / Log Analytics queries the way that actually returns rows. Use when the task mentions Azure, az, a subscription, App Insights, Log Analytics, Kusto/KQL, container apps, or "the logs" for a client app. Reads the org's profile for the subscription map; asks when the profile has none.

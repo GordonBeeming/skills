@@ -38,7 +38,7 @@ Delegate only at `deep` (the panel) and for a backlog of five or more PRs. One P
 - `--event approve|comment|request-changes`: the review event, without asking.
 - `--blind`: read hunks only, explain the change, no verdict, no write-back.
 - `--reviewer claude[:<model>]` or `--reviewer agy[:<model>]`: one extra independent pass through the
-  runner. `standard` or `deep` only. Defaults: claude `sonnet`, agy `gemini-3.1-pro-low`.
+  runner. `standard` or `deep` only. Defaults: claude `sonnet`, agy `gemini-4-argon-medium`.
 - `--focus "<text>"`: a brief to validate against. Also taken from the words around the command.
 - Anything else on the command line is the target.
 

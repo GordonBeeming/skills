@@ -11,7 +11,8 @@ description: Decide when a $work or $review teammate row should be Claude or Ant
   servers, or judgement calls mid-run.
 - **Claude** (`claude-run.sh`): a second opinion on a Codex-built diff, or a self-contained build
   track with a clear spec that benefits from a different model's blind spots.
-- **Antigravity** (`agy-run.sh`): a cheap parallel track (`gemini-3.8-flash-low`) or a Gemini/Claude-
+- **Antigravity** (`agy-run.sh`): a build track or a review pass on `gemini-4-argon-medium` (the default
+  for every Antigravity row; `gemini-3.8-flash-low` only when the plan row says cheap, mechanical work) or a Gemini/Claude-
   model review pass. Headless only, no interactive escalation.
 
 A diff one agent builds gets reviewed by a different one: Claude builds, Codex or Antigravity
@@ -54,7 +55,7 @@ agy-run.sh    --mode <review|build> --model <model> --repo <dir> --prompt <file>
 `agy-run.sh` writes `<out>` and `<out>.raw.json` (agy's unmodified `--output-format json` payload):
 
 ```json
-{ "tool": "agy", "mode": "review", "model": "gemini-3.1-pro-low", "repo": "...",
+{ "tool": "agy", "mode": "review", "model": "gemini-4-argon-medium", "repo": "...",
   "conversationId": "...", "status": "completed|failed|timeout", "agyStatus": "SUCCESS",
   "response": "...", "deniedActions": [], "exitCode": "0", "startedAt": "...", "endedAt": "...",
   "rawFile": "...", "stderrTail": "" }
@@ -81,6 +82,6 @@ Claude accepts any id the `claude-run.sh` caller names, e.g. `sonnet` or `opus`;
 default for a build row and for a review pass unless the task calls for `opus`. On the Codex side the
 same split applies when Claude drives Codex: build rows run `gpt-5.6-luna`, review rows `gpt-6-astra`.
 The strong model plans and reviews, the cheap one builds to a spec that already pins the work down. Antigravity, from `agy models`:
-`gemini-3.8-flash-{low,medium,high}`, `gemini-3.1-pro-{low,high}`, `claude-sonnet-4-6`,
-`claude-opus-4-6-thinking`, `gpt-oss-120b-medium`. Default review model is `gemini-3.1-pro-low`;
-default cheap build track is `gemini-3.8-flash-low`.
+`gemini-4-argon-{low,medium,high}`, `gemini-3.8-flash-{low,medium,high}`, `claude-opus-5-5-{low,medium,high}`,
+`claude-sonnet-5-5-{low,medium,high}`, `gpt-oss-120b-medium`. Default for build and review is
+`gemini-4-argon-medium`; `gemini-3.8-flash-low` only for a row the plan marks cheap and mechanical.
