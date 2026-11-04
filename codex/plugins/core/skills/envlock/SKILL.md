@@ -9,7 +9,8 @@ Worktrees isolate code, not the dev database or fixed ports. `envlock` is the on
 keeps two worktrees, on either harness, from fighting over the same environment. Both harnesses
 enforce it with hooks: in Codex, `~/.codex/hooks.json` runs `envlock-guard.sh` before every shell
 command (a launch matching the profile's `env.launch` is denied unless this session holds the lock)
-and `envlock-release-all.sh` when a turn stops. The session id is `CODEX_THREAD_ID`, the same id the
+`envlock-hold-check.sh` when a turn stops (a turn that ends holding a lock is asked to release it or
+say why it keeps it), and `envlock-release-all.sh` when the session ends. The session id is `CODEX_THREAD_ID`, the same id the
 hooks receive. `$work` and this skill still acquire and release explicitly around a launch.
 
 ## Commands
@@ -43,6 +44,9 @@ which CLI it's running.
    run for longer than it has to.
 4. A launch denied by `envlock-guard` means acquire first, then run it again. Don't run the launch
    command until `acquire` has returned.
+5. Hold it only while you need it. Once the check is done, run `envlock release <name>` and say in
+   your reply that you released it. If you still need it at the end of a turn, say in one line that
+   you're keeping it and for what.
 
 ## Manual use
 

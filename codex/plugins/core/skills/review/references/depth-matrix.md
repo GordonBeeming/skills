@@ -105,7 +105,7 @@ Shape from the shared v1 contract, with `mode` carrying the review switches.
   "findings": [
     {
       "id": "sec-001",
-      "expert": "security|bugs|sre|cost|conventions|tests|lead|claude|agy",
+      "expert": "security|bugs|sre|cost|conventions|tests|lead|claude|agy|grok",
       "title": "SQL query built by string concatenation with request input",
       "severity": "Blocker|High|Medium|Low",
       "data_integrity": false,

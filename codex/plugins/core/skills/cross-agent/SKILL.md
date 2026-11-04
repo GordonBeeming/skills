@@ -1,36 +1,41 @@
 ---
 name: cross-agent
-description: Decide when a $work or $review teammate row should be Claude or Antigravity instead of native Codex, and how to call claude-run.sh / agy-run.sh and read their report files. Use whenever $work or $review composes a team that includes a claude or agy worker, or a task explicitly asks to run something in Claude or Antigravity. Not a standalone user-facing workflow; the runner scripts are the mechanics, this skill is the routing and report-shape reference.
+description: Route $work and $review reviewer rows to Claude, Antigravity or Grok (other models review, Codex builds), and how to call claude-run.sh / agy-run.sh / grok-run.sh and read their report files. Use whenever $work or $review composes a team that includes a claude, agy or grok reviewer, or a task explicitly asks to run something in Claude, Antigravity or Grok. Not a standalone user-facing workflow; the runner scripts are the mechanics, this skill is the routing and report-shape reference.
 ---
 
 # cross-agent
 
-## When to reach for which
+## Who builds, who reviews
 
-- **Codex** (`spawn_agent` / `send_message`): default for anything needing this session's tools, MCP
-  servers, or judgement calls mid-run.
-- **Claude** (`claude-run.sh`): a second opinion on a Codex-built diff, or a self-contained build
-  track with a clear spec that benefits from a different model's blind spots.
-- **Antigravity** (`agy-run.sh`): a build track or a review pass on `gemini-4-argon-medium` (the default
-  for every Antigravity row; `gemini-3.8-flash-low` only when the plan row says cheap, mechanical work) or a Gemini/Claude-
-  model review pass. Headless only, no interactive escalation.
+Codex builds. Every other model reviews. From this side, Claude, Antigravity and Grok are reviewers,
+never workers: their value is a different model's blind spots on a diff Codex wrote, and a second
+builder only adds a diff nobody in this session has read.
 
-A diff one agent builds gets reviewed by a different one: Claude builds, Codex or Antigravity
-reviews; Codex builds, Claude or Antigravity reviews. An agent never reviews its own build.
+- **Codex** (`spawn_agent` / `send_message`): every build, test and fix row.
+- **Claude** (`claude-run.sh --mode review`): an independent review pass, `sonnet` by default.
+- **Antigravity** (`agy-run.sh --mode review`): a Gemini review pass on `gemini-4-argon-medium`.
+- **Grok** (`grok-run.sh --mode review`): an xAI review pass on `grok-4.6`. Review is its only mode.
+
+A foreign `--mode build` run happens only when User asks for one in words for that task (the
+`$work` design hand-off to Claude is one he answers in the menu). Headless only everywhere, no
+interactive escalation. An agent never reviews its own build.
 
 ## Runner contracts
 
-Both scripts live in `${PLUGIN_ROOT}/scripts/`, take the same required flags, and always write a
-JSON report plus a raw-output sibling file.
+All three live in `${PLUGIN_ROOT}/scripts/`, take the same required flags, and always write a JSON
+report plus a raw-output sibling file.
 
 ```
 claude-run.sh --mode <review|build> --model <model> --repo <dir> --prompt <file> --out <report.json> [--resume <session-id>] [--timeout <duration>]
 agy-run.sh    --mode <review|build> --model <model> --repo <dir> --prompt <file> --out <report.json> [--resume <conversation-id>] [--timeout <duration>]
+grok-run.sh   --mode review         --model <model> --repo <dir> --prompt <file> --out <report.json> [--resume <session-id>] [--timeout <duration>]
 ```
 
-- `--mode review` is read-only in effect. `--mode build` is write-enabled, still headless-approved,
-  never an interactive escalation. Use `review` for anything that only reads and reports; `build`
-  only when the task is authorized to write in `--repo`.
+- `--mode review` is read-only in effect, and it's the mode every reviewer row uses. `grok-run.sh`
+  runs `--permission-mode plan --sandbox read-only` and refuses `--mode build` with exit 2. On macOS
+  Grok's sandbox doesn't block network, so the review brief forbids git network commands.
+- `--mode build` (claude and agy only) is write-enabled, still headless-approved, never an
+  interactive escalation, and only for a build User asked for in words.
 - `claude-run.sh`'s `--mode review` runs `--permission-mode plan`; `--mode build` runs
   `--permission-mode acceptEdits`. It never passes `bypassPermissions`, the Claude-side analogue of
   `--yolo`, and just as off-limits from this script.
@@ -61,13 +66,24 @@ agy-run.sh    --mode <review|build> --model <model> --repo <dir> --prompt <file>
   "rawFile": "...", "stderrTail": "" }
 ```
 
+`grok-run.sh` writes `<out>` and `<out>.raw.json` (grok's unmodified `--output-format json` payload):
+
+```json
+{ "tool": "grok", "mode": "review", "model": "grok-4.6", "permissionMode": "plan", "sandbox": "read-only",
+  "repo": "...", "sessionId": "...", "status": "completed|failed|timeout", "stopReason": "end_turn",
+  "response": "...", "error": "", "exitCode": "0", "startedAt": "...", "endedAt": "...",
+  "rawFile": "...", "stderrTail": "" }
+```
+
+`grok-run.sh` picks the session id before the run, so `sessionId` is set even on a failure.
+
 `sessionId` / `conversationId` is the resume handle: pass it back as `--resume` on the next call to
 keep the same worker in context across `$work` waves or `$review` rounds.
 
 ## Calling from $work or $review
 
-A teammate row with `kind: claude` or `kind: agy` in `run.json`'s `workers.composition` maps to one
-of these scripts: the lead writes the prompt to a file, calls the runner, reads the report, and
+A review row with `kind: claude`, `kind: agy` or `kind: grok` in `run.json`'s `workers.composition`
+maps to one of these scripts: the lead writes the prompt to a file, calls the runner, reads the report, and
 stores `sessionId`/`conversationId` on that row for the next call. A `failed` or `timeout` report is
 treated the same as a failed teammate: it's surfaced in the done report, never retried silently.
 
@@ -79,9 +95,8 @@ requested model ran.
 ## Models
 
 Claude accepts any id the `claude-run.sh` caller names, e.g. `sonnet` or `opus`; `sonnet` is the
-default for a build row and for a review pass unless the task calls for `opus`. On the Codex side the
-same split applies when Claude drives Codex: build rows run `gpt-5.6-luna`, review rows `gpt-6-astra`.
-The strong model plans and reviews, the cheap one builds to a spec that already pins the work down. Antigravity, from `agy models`:
+default for a review pass unless the task calls for `opus`. Grok runs `grok-4.6`; `grok models` lists
+what the account can reach. Antigravity, from `agy models`:
 `gemini-4-argon-{low,medium,high}`, `gemini-3.8-flash-{low,medium,high}`, `claude-opus-5-5-{low,medium,high}`,
-`claude-sonnet-5-5-{low,medium,high}`, `gpt-oss-120b-medium`. Default for build and review is
-`gemini-4-argon-medium`; `gemini-3.8-flash-low` only for a row the plan marks cheap and mechanical.
+`claude-sonnet-5-5-{low,medium,high}`, `gpt-oss-120b-medium`. Default for a review is
+`gemini-4-argon-medium`.

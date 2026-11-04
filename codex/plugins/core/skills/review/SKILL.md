@@ -25,7 +25,7 @@ Each step names its input and output.
 | Panel experts | 5 | fixed roster in `references/panel.md`, never more |
 | Verification passes | 1 | no second pass; unverified findings stay `unverified` |
 | Concurrent reviewers (backlog) | 5 | queue the rest |
-| Runner timeout (claude, agy) | none, unless `--cap` was given (the runner gets what is left of it) | mark that pass `failed (timeout)`, carry on |
+| Runner timeout (claude, agy, grok) | none, unless `--cap` was given (the runner gets what is left of it) | mark that pass `failed (timeout)`, carry on |
 | Wall clock | none, unless User passes `--cap <time>` | stop, mark remaining steps `skipped (cap)`, write the report |
 
 Delegate only at `deep` (the panel) and for a backlog of five or more PRs. One PR at `quick` or
@@ -37,8 +37,9 @@ Delegate only at `deep` (the panel) and for a backlog of five or more PRs. One P
 - `--post <levels>`: post without asking, levels comma-separated (`blocker,high,medium`) or `none`.
 - `--event approve|comment|request-changes`: the review event, without asking.
 - `--blind`: read hunks only, explain the change, no verdict, no write-back.
-- `--reviewer claude[:<model>]` or `--reviewer agy[:<model>]`: one extra independent pass through the
-  runner. `standard` or `deep` only. Defaults: claude `sonnet`, agy `gemini-4-argon-medium`.
+- `--reviewer claude[:<model>]`, `--reviewer agy[:<model>]` or `--reviewer grok[:<model>]` (repeatable):
+  an extra independent pass through that runner. `standard` or `deep` only. Defaults: claude
+  `sonnet`, agy `gemini-4-argon-medium`, grok `grok-4.6`.
 - `--focus "<text>"`: a brief to validate against. Also taken from the words around the command.
 - Anything else on the command line is the target.
 
@@ -145,7 +146,7 @@ matters; step 5 ranks. Read the base-branch code around a hunk before calling it
   `"coveredBy": "lead"`. The report names which seats reported.
 - `--reviewer`: write `runner/<name>.prompt.md` (generalist brief from `references/panel.md`), then
   `${PLUGIN_ROOT}/scripts/claude-run.sh --mode review --model <m> --repo <repo> --prompt <that file>
-  --out runner/<name>.json` (or `agy-run.sh`). Extract the findings array from the
+  --out runner/<name>.json` (or `agy-run.sh`, `grok-run.sh`). Extract the findings array from the
   report's response.
 - `backlog`: batches from `triage.json`, one pass per PR at the chosen depth. Under five PRs the lead
   reads them in sequence; five or more, one `spawn_agent` per PR, model `gpt-5.6-sol`, five at a time.

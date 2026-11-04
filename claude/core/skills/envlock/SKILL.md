@@ -38,8 +38,12 @@ or the duration runs out.
    run for longer than it has to.
 4. The `PreToolUse` hook denies any Bash command matching `env.launch` unless the calling session
    holds the lock, and names the current holder plus the exact `acquire` command to run instead.
-5. The `Stop` hook releases every lock the ending session still holds, so a killed or finished session
-   never leaves a stale holder.
+5. Hold it only while you need it. Once the check is done, run `envlock release <name>` and say in
+   your reply that you released it. The `Stop` hook (`envlock-hold-check.sh`) stops a turn that ends
+   still holding a lock and asks for exactly that: release it, or say in one line that you're keeping
+   it and for what.
+6. The `SessionEnd` hook releases every lock the closing session still holds, and a session whose
+   process died is cleared by the next acquire, so nothing leaves a stale holder.
 
 ## Manual use
 
