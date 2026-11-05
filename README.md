@@ -50,3 +50,5 @@ repository root so Codex can reach the `generic/` sets.
 
 Some skills here are vendored from other people's repos rather than written from scratch. See
 `ATTRIBUTION.md` for the full list of sources and licenses.
+
+The core review workflow supports Standard, thorough single-reviewer Deep and explicit-only Ultra. Ultra retains the six-seat panel and verification pass and includes its report in the authorised PR comment. Automatic selection never chooses Ultra. Interactive skills and unattended snapshot callers use the shared mode definitions shipped with core.

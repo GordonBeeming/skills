@@ -180,8 +180,8 @@ Input: `findings.json`. Output: `findings.json` with a `status` per finding, `ve
   run is the narrowest thing that settles it: one test written or filtered for that case, one
   command, never the suite (CI-skipped tests are the next bullet) and never a full build. With a local checkout: `git fetch origin
   <headRefName>` (headless per the git-usage skill's "Never prompt" section; a prompt is an attack,
-  stop and report), `git worktree add --detach <run dir>/wt <headRefOid>`, run there, `git worktree
-  remove <run dir>/wt` when the step ends. CI still running: say so and verify from the diff, never
+  stop and report), `bash ${PLUGIN_ROOT}/scripts/sprig-worktree.sh create --repo <repo> --dest <run dir>/wt --detach --base <headRefOid>`,
+  run there, `bash ${PLUGIN_ROOT}/scripts/sprig-worktree.sh remove --path <run dir>/wt` when the step ends. CI still running: say so and verify from the diff, never
   run the suite to get ahead of it. Never launch the app; a finding only a running app can settle is
   marked `unverified` and lands in open questions. Log each command and its real result.
 - `standard` and `deep`, when CI ran a selected subset (a `select-tests`-style job, or a touched
