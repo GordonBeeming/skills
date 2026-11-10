@@ -39,7 +39,7 @@ Delegate only at `deep` (the panel) and for a backlog of five or more PRs. One P
 - `--blind`: read hunks only, explain the change, no verdict, no write-back.
 - `--reviewer claude[:<model>]`, `--reviewer agy[:<model>]` or `--reviewer grok[:<model>]` (repeatable):
   an extra independent pass through that runner. `standard` or `deep` only. Defaults: claude
-  `sonnet`, agy `gemini-4-argon-medium`, grok `grok-4.6`.
+  `sonnet`, agy `gemini-4-argon-medium`, grok `grok-4.7`.
 - `--focus "<text>"`: a brief to validate against. Also taken from the words around the command.
 - Anything else on the command line is the target.
 

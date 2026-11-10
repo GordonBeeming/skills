@@ -46,7 +46,8 @@ in first person, never naming him or any agent. Rule and examples: `references/p
   commits: stop with one line.
 - Evidence: if `<run dir of the $work that built this>/evidence/` exists for this branch (look for the
   newest `runs/*` whose `run.json.worktree` is this worktree), reuse its before/after files in the PR
-  body per pr-cycle.md. Otherwise no evidence section.
+  body per pr-cycle.md. When that run's `mode.evidence` is `na`, its `mode.evidenceReason` goes under
+  the evidence heading as `N/A - <reason>` the same way. Otherwise no evidence section.
 
 ## Steps 2 to 7
 

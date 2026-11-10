@@ -14,7 +14,7 @@ builder only adds a diff nobody in this session has read.
 - **Codex** (`spawn_agent` / `send_message`): every build, test and fix row.
 - **Claude** (`claude-run.sh --mode review`): an independent review pass, `sonnet` by default.
 - **Antigravity** (`agy-run.sh --mode review`): a Gemini review pass on `gemini-4-argon-medium`.
-- **Grok** (`grok-run.sh --mode review`): an xAI review pass on `grok-4.6`. Review is its only mode.
+- **Grok** (`grok-run.sh --mode review`): an xAI review pass on `grok-4.7`. Review is its only mode.
 
 A foreign `--mode build` run happens only when User asks for one in words for that task (the
 `$work` design hand-off to Claude is one he answers in the menu). Headless only everywhere, no
@@ -32,8 +32,8 @@ grok-run.sh   --mode review         --model <model> --repo <dir> --prompt <file>
 ```
 
 - `--mode review` is read-only in effect, and it's the mode every reviewer row uses. `grok-run.sh`
-  runs `--permission-mode plan --sandbox read-only` and refuses `--mode build` with exit 2. On macOS
-  Grok's sandbox doesn't block network, so the review brief forbids git network commands.
+  runs `--permission-mode plan` (no sandbox: Grok's read-only profile won't start with OrbStack's
+  docker.sock link) and refuses `--mode build` with exit 2. The review brief forbids git network commands.
 - `--mode build` (claude and agy only) is write-enabled, still headless-approved, never an
   interactive escalation, and only for a build User asked for in words.
 - `claude-run.sh`'s `--mode review` runs `--permission-mode plan`; `--mode build` runs
@@ -69,7 +69,7 @@ grok-run.sh   --mode review         --model <model> --repo <dir> --prompt <file>
 `grok-run.sh` writes `<out>` and `<out>.raw.json` (grok's unmodified `--output-format json` payload):
 
 ```json
-{ "tool": "grok", "mode": "review", "model": "grok-4.6", "permissionMode": "plan", "sandbox": "read-only",
+{ "tool": "grok", "mode": "review", "model": "grok-4.7", "permissionMode": "plan", "sandbox": "none",
   "repo": "...", "sessionId": "...", "status": "completed|failed|timeout", "stopReason": "end_turn",
   "response": "...", "error": "", "exitCode": "0", "startedAt": "...", "endedAt": "...",
   "rawFile": "...", "stderrTail": "" }
@@ -95,7 +95,7 @@ requested model ran.
 ## Models
 
 Claude accepts any id the `claude-run.sh` caller names, e.g. `sonnet` or `opus`; `sonnet` is the
-default for a review pass unless the task calls for `opus`. Grok runs `grok-4.6`; `grok models` lists
+default for a review pass unless the task calls for `opus`. Grok runs `grok-4.7`; `grok models` lists
 what the account can reach. Antigravity, from `agy models`:
 `gemini-4-argon-{low,medium,high}`, `gemini-3.8-flash-{low,medium,high}`, `claude-opus-5-5-{low,medium,high}`,
 `claude-sonnet-5-5-{low,medium,high}`, `gpt-oss-120b-medium`. Default for a review is
