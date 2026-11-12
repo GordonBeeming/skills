@@ -85,7 +85,9 @@ keep the same worker in context across `$work` waves or `$review` rounds.
 A review row with `kind: claude`, `kind: agy` or `kind: grok` in `run.json`'s `workers.composition`
 maps to one of these scripts: the lead writes the prompt to a file, calls the runner, reads the report, and
 stores `sessionId`/`conversationId` on that row for the next call. A `failed` or `timeout` report is
-treated the same as a failed teammate: it's surfaced in the done report, never retried silently.
+treated the same as a failed teammate: it's surfaced in the done report, never retried silently, except a quota error below.
+
+**Quota never blocks.** A report whose error says the account is out (quota, usage limit, rate limit, credits, billing, HTTP 429) is not a failure to work: swap that row to the next reviewer that isn't the builder and isn't already reviewing this diff, in the order Claude, Grok, Antigravity, and run it straight away. Never ask User which one to use and never wait for the quota to reset. Record the swap on the row (`swapped: agy -> claude (quota)`) and in the done report. When every other model is out, the run carries on without that review and the done report says so in one line; it never stops on it.
 
 Native Codex rows go through `spawn_agent` / `send_message` instead of a runner script. If
 `spawn_agent`'s schema doesn't expose a model field, use the normal teammate default and record that
