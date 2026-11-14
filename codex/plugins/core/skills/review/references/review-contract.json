@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "auto": {
+    "deepFromSize": "XL",
+    "deepAboveChangedLines": 2000,
+    "highRiskSelects": "deep"
+  },
+  "common": "review-common.md",
+  "unattended": "unattended.md",
+  "modes": {
+    "standard": "standard.md",
+    "deep": "deep.md",
+    "ultra": "ultra.md"
+  },
+  "panel": "review-panel.md",
+  "ultraSeats": [
+    "bugs",
+    "security",
+    "sre",
+    "conventions",
+    "cost",
+    "tests"
+  ],
+  "noise": {
+    "directories": [
+      "node_modules",
+      "vendor",
+      "vendors",
+      "dist",
+      "bin",
+      "obj"
+    ],
+    "suffixes": [
+      ".lock",
+      ".g.cs",
+      ".generated.cs",
+      ".generated.ts",
+      "modelsnapshot.cs"
+    ],
+    "names": [
+      "package-lock.json",
+      "npm-shrinkwrap.json",
+      "yarn.lock",
+      "pnpm-lock.yaml",
+      "bun.lockb",
+      "packages.lock.json"
+    ]
+  },
+  "ultraConfidenceMinimum": 80
+}

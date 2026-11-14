@@ -16,7 +16,7 @@ One rule decides the event, for `$review` and the approve sweep alike:
 - **Approve** otherwise: at most two Mediums, none on data integrity, plus any number of Lows.
 
 An approval also needs a review that read the whole change at a depth that fits its size
-(`standard`, or `deep` for XL and up; never `quick`). `review-post-guard` refuses one whose
+(`standard`, or `deep` or explicit `ultra` for XL and up; never `quick`). `review-post-guard` refuses one whose
 `run.json` does not show that.
 
 Approving with findings attached is not a clean review. Only an approval with zero findings counts
@@ -102,3 +102,5 @@ refused post means the payload is wrong. Rebuild it; never post another way.
 Never merge, never dismiss another reviewer's review, never resolve another reviewer's thread, never
 approve over an unresolved thread of User's own. On a branch with no PR: nothing is posted and the
 report says `skipped (no PR)`.
+
+For explicit Ultra, append `## Ultra review report` with every panel seat, verification, candidate dispositions and caveats after the fixed verdict line and any outside-diff list. This is the sole report exception to the fixed-body rule. Record mode.depth=ultra, chosenBy=flag or question, and depthAuto=false before posting.

@@ -1,46 +1,20 @@
 # Depth matrix
 
-What each depth does at each step, exactly. The spine names the steps; this file is the contract.
+Shared rules: review-contract.json, review-common.md and the named mode reference. Auto selects
+Deep for XL or larger, more than 2,000 non-noise changed lines, or high risk; otherwise Standard.
+Ultra is never automatic, including unattended runs, follow-ups and retries.
 
-## Depth by step
-
-| Step | quick | standard | deep |
+| Mode | Review | Verification | Output |
 |---|---|---|---|
-| 0 menu | same | same | same |
-| 1 resolve | same | same | same |
-| 2 gather | diff, PR state, threads, checks, context | same | same |
-| 3 review | lead reads every hunk, records coverage, works the cost checklist, writes every finding | same, plus `needs_run` flags | six-seat panel in parallel, plus `--reviewer` runner pass; lead merges |
-| 4 verify | skipped (depth quick) | CI results first; a local run only for a `needs_run` finding CI cannot answer, and only the narrowest test for it; the affected tests CI skipped, timed | one verification pass: dedup, score, rule check, the same CI-first validation |
-| 5 rank | verdict (always hold), Blockers only in chat | verdict, counts, top findings in chat | same as standard, over `confirmed` findings |
-| 6 artifact | skipped (depth quick) | HTML artifact | HTML artifact with per-seat detail, verification log, filtered appendix |
-| 7 write-back | as chosen | as chosen | as chosen |
-| 8 fix plan | skipped (depth quick) | skipped (depth standard) | `fix-plan.md` for `$work` |
-| 9 report | from run.json | from run.json | from run.json |
+| quick | One blocker-check pass, every hunk | No extra pass | Always hold; never approve |
+| standard | One reviewer, every hunk and surrounding code | Code and existing CI evidence; narrow checks only if available | Findings and verdict |
+| deep | One thorough reviewer, entire PR, callers, base/head, discussions and prior findings | Verify code evidence and completeness; preserve caveats | Findings and verdict |
+| ultra | Six independent seats from panel.md | One dedicated verification and deduplication pass | Full report included in authorised PR comment/review body |
 
-Cost: `quick` is one pass on the session model. `standard` is one pass, CI's own results, and at most a few narrow local runs; it never repeats the build or test suite CI already ran.
-`deep` is six `gpt-5.6-sol` agents, one optional runner, and the verification pass.
-
-`auto` is not a fourth depth. Step 1 resolves it to `deep` for a PR or branch that is XL or bigger
-(size label, or over 2,000 changed lines that are not noise) or labelled high risk, and to `standard`
-for everything else; the table above then applies to what it resolved to.
-
-## Target by depth
-
-| Target | quick | standard | deep | `--blind` |
-|---|---|---|---|---|
-| PR | yes | yes | yes | yes (quick or standard) |
-| branch | yes | yes | yes | yes (quick or standard) |
-| `backlog` | yes | yes | refused at step 0 | refused |
-| `dependabot` | yes | yes | refused at step 0 | refused |
-
-`backlog` at `quick` is triage plus one quick pass per PR and a hold or escalate call in chat; a PR
-worth approving is re-run at `standard` (or `deep` for XL and up) first.
-`backlog` at `standard` adds targeted validation where a checkout exists and one artifact per batch.
-`dependabot` at `quick` is the classification table; `standard` also reads each diff for source
-changes beyond the manifest and lockfile and checks the advisory links in the PR body.
-
-`--reviewer` at `standard` runs the runner pass alongside the lead's read and the lead merges both
-before step 4. At `deep` it is a sixth source into the same verification pass.
+Standard and Deep may review batches. Ultra requires an explicit request naming one PR or branch;
+it is unavailable for blind review or an entire backlog. Unattended snapshot callers use
+unattended.md and never run commands or publish from the model process. A missing Ultra seat or
+verification pass is a failure, not a downgraded review.
 
 ## run.json
 
@@ -132,16 +106,9 @@ A defect in the code the diff changed, stated with `file:line`. The state of CI 
 any depth: a failing check is followed to the code and reported as the defect it exposes, or left
 out with a line in the notes when it is flaky, infrastructural, or inherited from the base branch.
 
-## Scoring rubric (deep, step 4)
+## Ultra verification confidence
 
-- **0**: false positive on light scrutiny, or a pre-existing issue the change did not introduce.
-- **25**: might be real, could not verify; a style point no rule file names.
-- **50**: verified real, likely a nitpick or rare in practice.
-- **75**: very likely real and hit in practice; the current code is insufficient, or a rule file
-  names it directly.
-- **100**: certain; the evidence directly confirms an issue that will happen.
-
-`confirmed` at 80 or above. The number goes on the finding and overwrites the finder's confidence.
+Read the shared rubric in `ultra.md` and threshold in `review-contract.json`.
 
 ## Blind taxonomy (`--blind`, step 3)
 

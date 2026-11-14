@@ -2,7 +2,7 @@
 name: review
 description: >
   Review code at a chosen depth, report the findings first, and post back only what User then chooses. Explicit slash only: runs when
-  User types `$review [target] [--depth auto|quick|standard|deep] [--post <levels>] [--event ...] [--cap <time>]`. Target
+  User types `$review [target] [--depth auto|quick|standard|deep|ultra] [--post levels] [--event ...] [--cap time]`. Target
   is a PR URL or number, a branch name, nothing (the current branch against the default branch),
   `backlog`, or `dependabot`. Not for fixing review comments on my own PR (use $work), not for
   judging a screen or its UX, never merges anything, and never triggered by a bare URL or a pasted
@@ -12,9 +12,15 @@ description: >
 # $review
 
 One fixed path: menu, resolve, gather, review, verify, rank, artifact, write-back, fix plan, report.
-The lead reads every hunk itself. At `deep`, five experts read as well and a verification pass
-re-checks every finding against the code before anything is ranked. Nothing reaches GitHub unless
+The lead reads every hunk itself. At `ultra`, six independent seats review the change, followed
+by one verification pass before findings are ranked. Nothing reaches GitHub unless
 step 0 chose it. There are no gates after step 0: nothing else stops and asks.
+
+The shared review rules and automatic thresholds live in `references/review-contract.json`,
+`references/review-common.md` and the selected `standard.md`, `deep.md` or `ultra.md` reference.
+Read them before review. Deep is the thorough single-reviewer mode; the former Deep panel is now
+Ultra, explicit only. Auto never selects Ultra. For an unattended caller with pinned snapshots
+and a structured schema, use `references/unattended.md` instead of the interactive steps below.
 
 Each step names its input and output.
 
@@ -28,17 +34,17 @@ Each step names its input and output.
 | Runner timeout (claude, agy, grok) | none, unless `--cap` was given (the runner gets what is left of it) | mark that pass `failed (timeout)`, carry on |
 | Wall clock | none, unless User passes `--cap <time>` | stop, mark remaining steps `skipped (cap)`, write the report |
 
-Delegate only at `deep` (the panel) and for a backlog of five or more PRs. One PR at `quick` or
-`standard` is the lead's own read. No subagent ever double-checks the lead.
+Delegate only at `ultra` (the panel) and for a backlog of five or more PRs. One PR at `quick`,
+`standard` or `deep` is the lead's own read. No subagent ever double-checks the lead.
 
 ## Flags
 
-- `--depth auto|quick|standard|deep`. `auto` picks from the target in step 1. What each does: `references/depth-matrix.md`.
+- `--depth auto|quick|standard|deep|ultra`. `auto` picks from the target in step 1. What each does: `references/depth-matrix.md`.
 - `--post <levels>`: post without asking, levels comma-separated (`blocker,high,medium`) or `none`.
 - `--event approve|comment|request-changes`: the review event, without asking.
 - `--blind`: read hunks only, explain the change, no verdict, no write-back.
 - `--reviewer claude[:<model>]`, `--reviewer agy[:<model>]` or `--reviewer grok[:<model>]` (repeatable):
-  an extra independent pass through that runner. `standard` or `deep` only. Defaults: claude
+  an extra independent pass through that runner. `standard`, `deep` or `ultra` only. Defaults: claude
   `sonnet`, agy `gemini-4-argon-medium`, grok `grok-4.7`.
 - `--focus "<text>"`: a brief to validate against. Also taken from the words around the command.
 - Anything else on the command line is the target.
@@ -50,10 +56,10 @@ Input: the command line, the profile. Output: `mode` for run.json.
 Before any other tool call, one `request_user_input` (or `request_user_input_async`, whichever is listed) call with one single-select question, dropped
 when `--depth` is already on the command:
 
-1. "How deep?" options `auto (Recommended)`, `quick`, `standard`, `deep`, each described by what it
+1. "Review depth?" options `auto (Recommended)`, `quick`, `standard`, `deep`, `ultra`, each described by what it
    does. `auto` resolves in step 1: `deep` for a PR or branch that is XL or bigger (a size label, or
    over 2,000 changed lines that are not noise) or labelled high risk, `standard` for anything else
-   (`backlog`, `dependabot`, `--blind` included). Only `standard` and `deep` can end in an approval;
+   (`backlog`, `dependabot`, `--blind` included). Only `standard`, `deep` and `ultra` can end in an approval;
    `quick` is a blocker check and always holds. None of them re-runs what CI already ran.
 
 Write-back is never decided here. Nothing reaches GitHub until the findings exist and User has
@@ -68,9 +74,9 @@ Stop with one line, before any research, when:
   `$review: profile <org> sets review.postComments=never; drop --post`. Same shape for `--event approve`
   against `review.approve: never`.
 - `--post` or `--event` with `--blind`: `$review: blind mode never writes back`.
-- `--depth deep` with `backlog`, `dependabot`, or `--blind`:
-  `$review: deep is for one PR or branch; run it on the PRs this pass flags`.
-- `--reviewer` with `--depth quick`: `$review: --reviewer needs standard or deep`.
+- `--depth ultra` with `backlog`, `dependabot`, or `--blind`:
+  `$review: ultra is for one PR or branch; run it on the PRs this pass flags`.
+- `--reviewer` with `--depth quick`: `$review: --reviewer needs standard, deep or ultra`.
 - Nobody can answer (a routine, `codex exec`, or a teammate session) and a flag is missing:
   `$review: pass --depth and --post (levels or none) when nobody can answer the menu`. Unattended
   with `--post <levels>` and no `--event`, the recommendation in `references/post-review.md` is the
@@ -132,18 +138,19 @@ triage table before any PR is read.
 Input: `diff.patch`, `context.md`. Output: `<run dir>/findings.json` (schema in
 `references/depth-matrix.md`); `--blind` writes `reading.md` instead.
 
+For Deep, also read `references/deep.md` and apply its full context and follow-up procedure.
+
 Coverage first, ranking later. Every finding goes in, including uncertain and low-severity ones, each
 with a confidence and a severity guess. No reviewer, human or agent, is ever told to report only what
 matters; step 5 ranks. Read the base-branch code around a hunk before calling it a bug.
 
-- `quick` and `standard`: the lead reads every hunk and the code it touches, then writes every
+- `quick`, `standard` and `deep`: the lead reads every hunk and the code it touches, then writes every
   finding. `standard` also sets `needs_run` where only a build or test can settle it.
-- `deep`: six `spawn_agent` calls in one message, model `gpt-5.6-sol`, one per seat in
-  `references/panel.md`, each handed its brief, the absolute paths to `diff.patch` and `context.md`,
-  the schema, and the coverage instruction verbatim. Output `panel/<seat>.json`. Then confirm every
-  seat returned an array: an idle agent with nothing delivered is a silent gap, so re-request once,
-  and if it still does not arrive the lead reviews that angle itself and writes the file with
-  `"coveredBy": "lead"`. The report names which seats reported.
+- `ultra`: six independent `spawn_agent` calls using the configured review model, one per seat in `references/panel.md`.
+  Hand each its shared brief, immutable input paths, schema and coverage instruction. Output
+  `panel/<seat>.json`. Every required seat must return a valid result. If a seat or verifier
+  fails, record an incomplete Ultra review and hold; never silently substitute Deep or claim
+  the missing seat completed.
 - `--reviewer`: write `runner/<name>.prompt.md` (generalist brief from `references/panel.md`), then
   `${PLUGIN_ROOT}/scripts/claude-run.sh --mode review --model <m> --repo <repo> --prompt <that file>
   --out runner/<name>.json` (or `agy-run.sh`, `grok-run.sh`). Extract the findings array from the
@@ -173,7 +180,7 @@ through the `cost` brief in `references/panel.md` as a checklist.
 Input: `findings.json`. Output: `findings.json` with a `status` per finding, `verification.log`.
 
 - `quick`: `skipped (depth quick)`.
-- `standard`: CI is the build and test run; never repeat it. Read what CI already settled:
+- `standard` and `deep`: CI is the build and test run; never repeat it. Read what CI already settled:
   `gh pr checks <n>` and, for anything failing, `gh run view <run-id> --log-failed`. A finding CI
   settles is marked from CI with the check name as evidence; the finding stays a statement about the
   code, never about the check. Only a `needs_run` finding CI cannot answer gets a local run, and that
@@ -184,7 +191,7 @@ Input: `findings.json`. Output: `findings.json` with a `status` per finding, `ve
   run there, `bash ${PLUGIN_ROOT}/scripts/sprig-worktree.sh remove --path <run dir>/wt` when the step ends. CI still running: say so and verify from the diff, never
   run the suite to get ahead of it. Never launch the app; a finding only a running app can settle is
   marked `unverified` and lands in open questions. Log each command and its real result.
-- `standard` and `deep`, when CI ran a selected subset (a `select-tests`-style job, or a touched
+- `standard`, `deep` and `ultra`, when CI ran a selected subset (a `select-tests`-style job, or a touched
   module's test project missing from `checks.txt`): run the test projects of the touched modules that
   CI did not run, at the head (the detached worktree above), under the env lock (`envlock acquire
   <env.lock> --wait`), with the profile's `test.command` scoped to those projects and per-test
@@ -192,26 +199,20 @@ Input: `findings.json`. Output: `findings.json` with a `status` per finding, `ve
   stopping at the same duration (a timeout signature); High when the suite takes more than 1.5 times
   the latest default-branch CI run of the same job. Log the command, the total time, and the ten
   slowest tests. This is the one suite run the review makes; CI could not have shown it.
-- `deep`: one pass over every finding, panel and runner alike. Dedup on file, nearby line, and
+- `ultra`: one pass over every finding, panel and runner alike. Dedup on file, nearby line, and
   normalised title, keeping the highest severity and every contributing seat. Score 0 to 100 with the
-  rubric in `references/depth-matrix.md`; the score overwrites the finder's confidence. A finding
+  rubric in `references/ultra.md`; the score overwrites the finder's confidence. A finding
   drawn from a rule file: open the file and quote the rule, drop it if the rule does not say that.
   Drop findings on lines the change did not touch unless the change makes them reachable, and say
   why. `needs_run` findings get the same targeted validation as `standard`. Status: `confirmed` at
-  80 or above, else `filtered`; a verified non-issue is `false-positive`. Nothing is deleted:
+  the threshold in `references/review-contract.json` or above, else `filtered`; a verified non-issue is `false-positive`. Nothing is deleted:
   `filtered` and `false-positive` stay in the file and in the artifact appendix.
 
 ## Step 5: rank
 
 Input: `findings.json`. Output: `findings.json` with `verdict` and findings ordered by severity.
 
-Severity, one home for the whole skill:
-
-- **Blocker**: likely user-facing breakage, security hole, data loss, or a direct failure of the brief.
-- **High**: plausible production bug, or a required validation that is missing.
-- **Medium**: real maintainability, observability, race, or edge-case risk. A Medium that can
-  corrupt, lose, or silently mis-write persisted data also gets `data_integrity: true`.
-- **Low**: polish, naming, test gaps, questions.
+Severity and category definitions live in `references/review-common.md` for every mode.
 
 **A finding is a defect in the code, never a state of the build.** "CI red", "build break",
 "checks failing" are not findings and never appear as one: User reads the checks himself and their
@@ -230,22 +231,27 @@ The verdict follows the same rule: it is a judgement on the code, so a PR with a
 code defect is `approve`, and a PR that is green with a Blocker in the diff is `hold`.
 
 Borderline between two: the higher one. Verdict is `approve` when the bar in `references/post-review.md` says approve (at
-`deep`, among `confirmed`), coverage is complete, and the depth fits the size: `standard`, or
-`deep` for XL and up. Otherwise `hold`, and `quick` always holds. `review-post-guard` refuses an
+`ultra`, among `confirmed`), coverage is complete, and the depth fits the size: `standard`, or
+`deep` or explicit `ultra` for XL and up. Otherwise `hold`, and `quick` always holds. `review-post-guard` refuses an
 approval whose `run.json` (`repo`, `pr`, `mode.depth`, `coverage`) does not show this. With `--focus`, add `meets`, `partial`, or `fails` against
 the brief. Backlog with `--approve` uses the same bar. `--blind` has no verdict.
 
-In chat: `quick` prints the verdict and Blockers only; `standard` and `deep` print the verdict,
+In chat: `quick` prints the verdict and Blockers only; `standard`, `deep` and `ultra` print the verdict,
 counts per severity, and the top findings with `file:line`.
 
 ## Step 6: artifact
 
 Input: `findings.json` or `reading.md`. Output: `outputs.artifact` in run.json.
 
-`standard` and `deep` (and `--blind` at `standard`) build one HTML file per
+`standard`, `deep` and `ultra` (and `--blind` at `standard`) build one HTML file per
 `references/artifact.md` at `/Users/user/Developer/artifacts/<repo>/review-<pr-or-branch>-<yyyymmdd>.html`.
 Brand from the `brand-guidelines` skill (personal unless the repo's org routes elsewhere). Run the
 global visual QA loop before handing back the `file://` link. `quick`: `skipped (depth quick)`.
+
+At Ultra, also render a Markdown report containing per-seat coverage, verified findings,
+filtered candidates and caveats. Include it in the PR comment/review body when posting is
+explicitly authorised. Never replace it with only a link; if it cannot fit, report the limit
+and preserve the local report without silently publishing a partial Ultra result.
 
 ## Step 7: post the review, if User says so
 
@@ -273,7 +279,7 @@ Never merge, never dismiss another reviewer's review, never approve over an unre
 
 Input: `findings.json`. Output: `<run dir>/fix-plan.md`.
 
-`deep` only; other depths `skipped (depth <x>)`. One item per `confirmed` finding at Medium or above:
+`ultra` only; other depths `skipped (depth <x>)`. One item per `confirmed` finding at Medium or above:
 finding id, file, the intended edit in one or two lines. First line of the file:
 `$work <run dir>/fix-plan.md --mode plan`. Do not run `$work`, do not edit code.
 
@@ -295,7 +301,7 @@ Outputs: artifact file:///... · fix plan <path> · run.json <path>
 
 - Never edit the target code, never commit, never push, never merge, never retarget or rebuild a PR.
 - Posts exactly what step 0 chose, once, and nothing on a `hold`.
-- Deliver the review asked for. No refactor proposals, no follow-up tickets; at `deep` the fix plan
+- Deliver the review asked for. No refactor proposals, no follow-up tickets; at `ultra` the fix plan
   is the only forward-looking output.
 - A finding is never dropped silently. Filtered and false-positive findings stay visible.
 - A cap hit is reported as a stop with its reason, never worked around.

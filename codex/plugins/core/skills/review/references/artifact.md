@@ -44,7 +44,7 @@ In this order:
 No Blocker or High: say so at the top and still list the Mediums, Lows, and open questions. An
 "approve" has to survive the reader's scrutiny too.
 
-## PR or branch, `deep` additions
+## PR or branch, `ultra` additions
 
 - **Per-seat detail** after the findings table: one block per seat that ran, its confirmed findings,
   and a line for a seat that ran and found nothing (a signal, not an omission). A seat covered by the
@@ -87,5 +87,5 @@ or commit messages.
 ## Finding fields
 
 severity, title, `file:line` (or a PR thread link), evidence, impact, suggested fix, confidence;
-at `deep` also the seat and the status. Identifier columns get enough width that a name does not
+at `ultra` also the seat and the status. Identifier columns get enough width that a name does not
 break mid-token.
