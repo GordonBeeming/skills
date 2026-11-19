@@ -39,7 +39,7 @@ in first person, never naming him or any agent. Rule and examples: `references/p
 "Written as User, always".
 
 - Profile via `${CLAUDE_PLUGIN_ROOT}/scripts/profile.sh`. Run dir
-  `${CLAUDE_CONFIG_DIR:-$HOME/.claude}/runs/<yyyymmdd>-pr-<branch>/` with `run.json` (steps:
+  `${AI_RUNS_DIR:-$HOME/Developer/ai-runs}/<yyyymmdd>-pr-<branch>/` with `run.json` (steps:
   menu, state, commit, create, rounds, publish, merge, close, report) and
   `caps.wallClock: "none"`, or the `--cap` value when User gave one.
 - `git rev-parse --abbrev-ref HEAD` must not be the default branch; if it is, stop with one line

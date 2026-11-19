@@ -24,13 +24,13 @@ location never matter:
 ```markdown
 | Before | After |
 |---|---|
-| ![before: fund list](/Users/user/.claude/runs/<run>/evidence/before-fund-list.png) | ![after: fund list](/Users/user/.claude/runs/<run>/evidence/after-fund-list.png) |
+| ![before: fund list](/Users/user/Developer/ai-runs/<run>/evidence/before-fund-list.png) | ![after: fund list](/Users/user/Developer/ai-runs/<run>/evidence/after-fund-list.png) |
 ```
 
 ```bash
 gh pr create --base main --head <branch> --title "<title>" --body-file <abs>/pr-body.md --draft \
-  --attach /Users/user/.claude/runs/<run>/evidence/before-fund-list.png \
-  --attach /Users/user/.claude/runs/<run>/evidence/after-fund-list.png
+  --attach /Users/user/Developer/ai-runs/<run>/evidence/before-fund-list.png \
+  --attach /Users/user/Developer/ai-runs/<run>/evidence/after-fund-list.png
 ```
 
 Rules the flag enforces:
